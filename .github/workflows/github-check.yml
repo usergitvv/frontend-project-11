@@ -4,6 +4,9 @@ on:
   - push
   - pull_request
 
+env:
+  CI: true
+
 jobs:
   build:
 
@@ -20,5 +23,5 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
-      - run: make install
+      - run: make install-deps
       - run: make lint
