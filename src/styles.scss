@@ -1,0 +1,22 @@
+@import "~bootstrap/scss/bootstrap";
+
+body {
+    background-color: rgb(183, 210, 248);
+}
+
+.form-box {
+    width: 80%;
+    margin: 0 auto;
+    background-color: gray;
+
+    form {
+        width: 80%;
+        margin: 0 auto;
+        text-align: center;
+
+        button:hover {
+            cursor: pointer;
+        } 
+    }
+}
+

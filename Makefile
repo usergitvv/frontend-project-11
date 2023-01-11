@@ -4,7 +4,7 @@ install-deps:
 lint:
 	npx eslint .
 
-serve:
+dev:
 	npx webpack serve
 
 build:
