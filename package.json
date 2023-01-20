@@ -2,7 +2,7 @@
   "name": "@hexlet/code",
   "version": "1.0.0",
   "description": "My webpack project - RSS-agregator",
-  "main": "src/index.js",  
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --mode=production --node-env=production",
@@ -50,8 +50,10 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.6",
+    "axios": "^1.2.2",
     "bootstrap": "^5.2.3",
     "i18next": "^22.4.9",
+    "lodash": "^4.17.21",
     "on-change": "^4.0.2",
     "yup": "^0.32.11"
   }
