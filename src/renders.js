@@ -103,7 +103,7 @@ const createPostItem = (posts, postArr) => {
     const parentDiv = document.querySelector(posts);
     const listGroup = parentDiv.querySelector('ul');
     li.append(link, btn);
-    listGroup.append(li);
+    listGroup.prepend(li);
   });
 
   input.value = '';
@@ -150,7 +150,7 @@ const createPostBlock = (respEmpty, respSt, posts, postArr) => {
     btn.textContent = i18nInst.t('btnPosts');
 
     li.append(link, btn);
-    listGroup.append(li);
+    listGroup.prepend(li);
   });
   return postsBox;
 };
