@@ -84,6 +84,7 @@ const createPostItem = (posts, postArr) => {
   postArr.forEach((item) => {
     const li = document.createElement('li');
     li.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start border-0 border-end-0');
+    li.setAttribute('data-feedid', item.idFeed);
     const link = document.createElement('a');
     link.setAttribute('class', 'fd-bold');
     link.setAttribute('href', item.link);
@@ -133,6 +134,7 @@ const createPostBlock = (respEmpty, respSt, posts, postArr) => {
   copy.forEach((item) => {
     const li = document.createElement('li');
     li.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start border-0 border-end-0');
+    li.setAttribute('data-feedid', item.idFeed);
     const link = document.createElement('a');
     link.setAttribute('class', 'fd-bold');
     link.setAttribute('href', item.link);
@@ -152,10 +154,52 @@ const createPostBlock = (respEmpty, respSt, posts, postArr) => {
     li.append(link, btn);
     listGroup.prepend(li);
   });
+
   return postsBox;
+};
+
+const makeUpdatedRendering = (posts, ancestor) => {
+  if (posts === null) return false;
+
+  const lastElem = _.last(posts);
+  const controlId = lastElem.idFeed;
+  const listGroup = ancestor.querySelector('ul');
+  posts.forEach((item) => {
+    const feedLies = listGroup.querySelectorAll(`li[data-feedid="${controlId}"]`);
+    const allLinks = listGroup.querySelectorAll('li a');
+    const linksArr = Array.from(allLinks);
+    const innerTexts = linksArr.map((link) => link.innerHTML);
+    const lastLi = _.last(feedLies);
+
+    if (!innerTexts.includes(item.title)) {
+      const li = document.createElement('li');
+      li.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start border-0 border-end-0');
+      li.setAttribute('data-feedid', controlId);
+      const link = document.createElement('a');
+      link.setAttribute('class', 'fd-bold');
+      link.setAttribute('href', item.link);
+      link.setAttribute('data-id', '2');
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+      link.textContent = item.title;
+
+      const btn = document.createElement('button');
+      btn.setAttribute('class', 'btn btn-outline-primary btn-sm');
+      btn.setAttribute('type', 'button');
+      btn.setAttribute('data-id', '2');
+      btn.setAttribute('data-bs-toggle', 'modal');
+      btn.setAttribute('data-bs-target', '#modal');
+      btn.textContent = i18nInst.t('btnPosts');
+
+      li.append(link, btn);
+      lastLi.after(li);
+    }
+  });
+  return null;
 };
 
 export {
   createFeedBlock,
   createPostBlock,
+  makeUpdatedRendering,
 };
