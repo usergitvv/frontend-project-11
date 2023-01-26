@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { createPostBlock, createFeedBlock, makeUpdatedRendering } from './renders.js';
 import { makeParsingForAxios } from './parsers.js';
 import ru from './ru.js';
+import callModal from './modal.js';
 
 const i18nInst = i18n.createInstance();
 i18nInst.init({
@@ -53,6 +54,7 @@ const state = {
     trueLinks: [],
     axiosError: '',
   },
+  mutation: false,
 };
 
 const fillArr = (feeds, posts, repErr) => {
@@ -142,6 +144,15 @@ const watchedState = onChange(state, (path) => {
       setTimeout(getNewsUpdate, 5000, links);
     };
     setTimeout(() => getNewsUpdate(workingLinks), 5000);
+  }
+
+  if (state.mutation === true) {
+    const liButtons = elements.postsDiv.querySelectorAll('.btn-sm');
+    liButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        callModal(btn);
+      });
+    });
   }
 
   if (state.loadErr === 'Network Error' && state.responceStatus !== 200) {
