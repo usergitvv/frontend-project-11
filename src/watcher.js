@@ -153,6 +153,14 @@ const watchedState = onChange(state, (path) => {
         callModal(btn);
       });
     });
+    const links = elements.postsDiv.querySelectorAll('li a');
+    links.forEach((link) => {
+      link.addEventListener('click', () => {
+        link.classList.remove('fw-bold');
+        link.classList.add('fw-normal');
+        link.classList.add('visited');
+      });
+    });
   }
 
   if (state.loadErr === 'Network Error' && state.responceStatus !== 200) {

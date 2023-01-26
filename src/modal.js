@@ -16,7 +16,10 @@ i18nInst.init({
 const callModal = (btn) => {
   const link = btn.previousElementSibling;
   const href = link.getAttribute('href');
+  link.classList.remove('fw-bold');
+  link.classList.add('fw-normal');
   link.classList.add('visited');
+
   const description = btn.nextElementSibling;
 
   const readMore = document.querySelector('.btn-primary');

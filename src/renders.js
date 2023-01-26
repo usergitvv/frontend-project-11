@@ -86,7 +86,7 @@ const createElemLi = (idfeed, itemlink, title, description) => {
   li.setAttribute('data-feedid', `#${idfeed}`);
 
   const link = document.createElement('a');
-  link.setAttribute('class', 'fd-bold');
+  link.setAttribute('class', 'fw-bold');
   link.setAttribute('href', itemlink);
   link.setAttribute('data-id', '2');
   link.setAttribute('target', '_blank');
@@ -103,7 +103,7 @@ const createElemLi = (idfeed, itemlink, title, description) => {
 
   const descriptionP = document.createElement('p');
   descriptionP.setAttribute('style', 'display: none');
-  descriptionP.textContent = description;
+  descriptionP.innerHTML = description;
   li.append(link, btn, descriptionP);
   return li;
 };
