@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import ru from './ru.js';
+import ru from '../locales/ru.js';
 
 const i18nInst = i18n.createInstance();
 i18nInst.init({
@@ -41,7 +41,7 @@ const callModal = (btn) => {
   const modalTitle = document.querySelector('.modal-title');
   const modalBody = document.querySelector('.modal-body');
   modalTitle.textContent = link.textContent;
-  modalBody.textContent = description.textContent;
+  modalBody.innerHTML = description.textContent;
 };
 
 export default callModal;
