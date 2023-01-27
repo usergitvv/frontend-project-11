@@ -70,10 +70,10 @@ export default () => {
         watchedState.yupError = err.message;
       });
 
-    const routes = {
-      rssPath: () => `https://allorigins.hexlet.app/get?disableCache=true&url=${inputValue}`,
-    };
-    axios.get(routes.rssPath())
+    // const routes = {
+    //   rssPath: () => `https://allorigins.hexlet.app/get?disableCache=true&url=${inputValue}`,
+    // };
+    axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${inputValue}`)
       .then((response) => {
         if (makeParsing(response.data.contents) === false) {
           watchedState.responseFeeds.push(null);
