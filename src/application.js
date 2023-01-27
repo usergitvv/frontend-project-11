@@ -70,10 +70,10 @@ export default () => {
         watchedState.yupError = err.message;
       });
 
-    // const routes = {
-    //   rssPath: () => `https://allorigins.hexlet.app/get?disableCache=true&url=${inputValue}`,
-    // };
-    axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${inputValue}`)
+    const routes = {
+      rssPath: () => `https://allorigins.hexlet.app/get?disableCache=true&url=${inputValue}`,
+    };
+    axios.get(routes.rssPath())
       .then((response) => {
         if (makeParsing(response.data.contents) === false) {
           watchedState.responseFeeds.push(null);
@@ -81,16 +81,18 @@ export default () => {
           watchedState.setTimeout.trueLinks.push(undefined);
           values.push(undefined);
         }
-        const { url, content_type } = response.data.status;
-        if (content_type !== 'text/html; charset=utf-8') {
-          watchedState.setTimeout.trueLinks.push(url);
+        if (makeParsing(response.data.contents) !== false) {
+          const { url, content_type } = response.data.status;
+          if (content_type !== 'text/html; charset=utf-8') {
+            watchedState.setTimeout.trueLinks.push(url);
+          }
+          const data = makeParsing(response.data.contents);
+          const [feed, posts] = data;
+          watchedState.responseFeeds.push(feed);
+          watchedState.responsePosts.push(posts);
+          watchedState.responceStatus = response.status;
+          values.push(urls[urls.length - 1]);
         }
-        const data = makeParsing(response.data.contents);
-        const [feed, posts] = data;
-        watchedState.responseFeeds.push(feed);
-        watchedState.responsePosts.push(posts);
-        watchedState.responceStatus = response.status;
-        values.push(urls[urls.length - 1]);
       })
       .catch((err) => {
         watchedState.loadErr = err.message;
