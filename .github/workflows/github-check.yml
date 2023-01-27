@@ -25,3 +25,7 @@ jobs:
           cache: npm
       - run: make install-deps
       - run: make lint
+# Add environment variables
+        env:
+          CI: true
+          
