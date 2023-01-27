@@ -114,12 +114,12 @@ const watchedState = onChange(state, (path) => {
 
   if (uniqFeeds.length !== 0 && state.buildStatus === true
     && state.final === true && _.last(state.responseFeeds) !== null) {
-    createFeedBlock(state.responseEmpty, state.responceStatus, '.feeds', uniqFeeds);
-    createPostBlock(state.responseEmpty, state.responceStatus, '.posts', uniqPosts);
     elements.input.value = '';
     elements.dangerP.classList.remove('text-danger');
     elements.dangerP.classList.add('text-success');
     elements.dangerP.textContent = i18nInst.t('valid');
+    createFeedBlock(state.responseEmpty, state.responceStatus, '.feeds', uniqFeeds);
+    createPostBlock(state.responseEmpty, state.responceStatus, '.posts', uniqPosts);
     state.buildStatus = false;
     state.final = false;
 
