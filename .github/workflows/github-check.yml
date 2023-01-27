@@ -24,8 +24,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - run: make install-deps
-      - run: make lint
-# Add environment variables
+      # Add environment variables
         env:
           CI: true
+      - name: Run linter
+      - run: make lint
+
           
