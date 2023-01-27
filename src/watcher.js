@@ -144,7 +144,7 @@ const watchedState = onChange(state, (path) => {
         });
       setTimeout(getNewsUpdate, 5000, links);
     };
-    setTimeout(() => getNewsUpdate(workingLinks), 5000);
+    getNewsUpdate(workingLinks);
   }
 
   if (state.mutation === true) {
