@@ -37,6 +37,7 @@ elements.exampleP.textContent = i18nInst.t('keyExample');
 elements.btn.textContent = i18nInst.t('keyBtn');
 
 const state = {
+  // thenresponse: [],
   feeds: [],
   repetError: false,
   buildStatus: false,
@@ -170,6 +171,10 @@ const watchedState = onChange(state, (path) => {
     elements.dangerP.classList.add('text-danger');
     elements.dangerP.textContent = i18nInst.t('errTexts.networkErr');
   }
+  // Promise.all(state.thenresponse)
+  //   .then((data) => console.log(data))
+  //   .catch((err) => console.log(err));
+  // console.log(state.thenresponse);
 });
 
 export default watchedState;

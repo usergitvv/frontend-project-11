@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import * as yup from 'yup';
+// import { isPlainObject } from 'lodash';
 import i18n from 'i18next';
 import axios from 'axios';
 import watchedState from './watcher.js';
@@ -75,24 +76,25 @@ export default () => {
     };
     axios.get(routes.rssPath())
       .then((response) => {
+        watchedState.thenresponse.push(response);
         if (makeParsing(response.data.contents) === false) {
           watchedState.responseFeeds.push(null);
           watchedState.responseEmpty = true;
           watchedState.setTimeout.trueLinks.push(undefined);
           values.push(undefined);
         }
-        if (makeParsing(response.data.contents) !== false) {
-          const { url, content_type } = response.data.status;
-          if (content_type !== 'text/html; charset=utf-8') {
-            watchedState.setTimeout.trueLinks.push(url);
-          }
-          const data = makeParsing(response.data.contents);
-          const [feed, posts] = data;
-          watchedState.responseFeeds.push(feed);
-          watchedState.responsePosts.push(posts);
-          watchedState.responceStatus = response.status;
-          values.push(urls[urls.length - 1]);
-        }
+        // console.log(isPlainObject(response));
+        // const { url, content_type } = response.data.status;
+        // if (content_type !== 'text/html; charset=utf-8') {
+        //   watchedState.setTimeout.trueLinks.push(url);
+        // }
+        watchedState.setTimeout.trueLinks.push(input.value);
+        const data = makeParsing(response.data.contents);
+        const [feed, posts] = data;
+        watchedState.responseFeeds.push(feed);
+        watchedState.responsePosts.push(posts);
+        watchedState.responceStatus = response.status;
+        values.push(urls[urls.length - 1]);
       })
       .catch((err) => {
         watchedState.loadErr = err.message;

@@ -3,6 +3,7 @@ import { uniqueId } from 'lodash';
 export default (response) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(response, 'application/xml');
+  // console.log(response);
 
   const channel = doc.querySelector('channel');
   if (channel) {
