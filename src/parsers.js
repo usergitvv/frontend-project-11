@@ -7,8 +7,9 @@ export default (response) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(response.data.contents, 'application/xml');
   const errorNode = doc.querySelector('parsererror');
-  if (errorNode) return 'emptyRSS';
-
+  if (errorNode) {
+    return 'emptyRSS';
+  }
   const channel = doc.querySelector('channel');
   if (channel) {
     const { url } = response.data.status;
@@ -57,6 +58,10 @@ const makeParsingForAxios = (response, feedsId) => {
   if (feedsId.length === 0) return false;
   const parser = new DOMParser();
   const doc = parser.parseFromString(response, 'application/xml');
+  const errorNode = doc.querySelector('parsererror');
+  if (errorNode) {
+    return false;
+  }
 
   const channel = doc.querySelector('channel');
   if (channel) {
