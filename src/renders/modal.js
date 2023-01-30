@@ -41,7 +41,7 @@ const callModal = (btn) => {
   const modalTitle = document.querySelector('.modal-title');
   const modalBody = document.querySelector('.modal-body p');
   modalTitle.textContent = link.textContent;
-  modalBody.innerHTML = description.textContent;
+  modalBody.textContent = description.textContent;
 };
 
 export default callModal;
