@@ -39,7 +39,7 @@ const callModal = (btn) => {
   modalFooter.prepend(btnLink);
 
   const modalTitle = document.querySelector('.modal-title');
-  const modalBody = document.querySelector('.modal-body p');
+  const modalBody = document.querySelector('.modal-body');
   modalTitle.textContent = link.textContent;
   modalBody.innerHTML = description.textContent;
 };
