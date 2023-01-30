@@ -10,9 +10,9 @@ export default (response) => {
   if (errorNode) {
     return 'emptyRSS';
   }
+
   const channel = doc.querySelector('channel');
   if (channel) {
-    const { url } = response.data.status;
     const feed = [];
     const posts = [];
     const titleF = doc.querySelector('channel title');
@@ -38,7 +38,7 @@ export default (response) => {
         link: link.textContent,
       });
     });
-    return [feed, posts, url, response.status];
+    return [feed, posts, response.status];
   }
   return false;
 };

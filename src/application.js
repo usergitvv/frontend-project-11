@@ -24,7 +24,7 @@ export default () => {
   const input = document.getElementById('url-input');
   const form = document.querySelector('form');
   const values = [];
-  const postsBox = document.querySelector('.posts');
+  const postsDiv = document.querySelector('.posts');
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -82,10 +82,11 @@ export default () => {
           contentType = 'empty';
         } else {
           const data = makeParsing(response);
-          const [feed, posts, url, status] = data;
+          const [feed, posts, status] = data;
           watchedState.responseFeeds = feed;
           watchedState.responsePosts = posts;
-          watchedState.trueLinks.push(url);
+          const trueUrl = inputValue.trim();
+          watchedState.trueLinks.push(trueUrl);
 
           watchedState.startBuilding = true;
           watchedState.responseStatus = status;
@@ -109,5 +110,5 @@ export default () => {
     });
   });
   const config = { attributes: true, childList: true, characterData: true };
-  observer.observe(postsBox, config);
+  observer.observe(postsDiv, config);
 };
