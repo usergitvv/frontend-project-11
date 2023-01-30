@@ -14,7 +14,6 @@ i18nInst.init({
   return t('key');
 });
 
-const input = document.getElementById('url-input');
 const postsBox = document.querySelector('.posts');
 
 const createElemLi = (idfeed, itemlink, title, description) => {
@@ -52,14 +51,10 @@ const createPostItem = (posts, postArr) => {
     const listGroup = parentDiv.querySelector('ul');
     listGroup.prepend(li);
   });
-
-  input.value = '';
-  input.focus();
-  return null;
 };
 
-const createPostBlock = (respEmpty, respSt, posts, postArr) => {
-  if (postArr.length === 0 || respEmpty === true || respSt !== 200) return false;
+const createPostBlock = (repeatErr, posts, postArr) => {
+  if (postArr === null || repeatErr === true) return false;
   const [children] = postsBox.children;
   if (children !== undefined) return createPostItem(posts, postArr);
 
@@ -96,6 +91,7 @@ const makeUpdatedRendering = (posts, ancestor) => {
     const allLinks = listGroup.querySelectorAll('li a');
     const linksArr = Array.from(allLinks);
     const innerTexts = linksArr.map((link) => link.textContent);
+
     const firstLi = feedLies[0];
     if (!innerTexts.includes(item.title)) {
       const li = createElemLi(controlId, item.link, item.title, item.description);

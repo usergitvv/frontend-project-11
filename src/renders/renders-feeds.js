@@ -17,7 +17,7 @@ i18nInst.init({
 const input = document.getElementById('url-input');
 const feedsBox = document.querySelector('.feeds');
 
-const createFeedItem = (feeds, feedArr) => {
+const createFeedItem = (feeds, feedArr, feedsId) => {
   const lastElem = _.last(feedArr);
 
   const li = document.createElement('li');
@@ -25,6 +25,7 @@ const createFeedItem = (feeds, feedArr) => {
   const h3 = document.createElement('h3');
   h3.setAttribute('class', 'h6 m-0');
 
+  feedsId.push({ id: lastElem.id, title: lastElem.title });
   h3.textContent = lastElem.title;
   const smallP = document.createElement('p');
   smallP.setAttribute('class', 'm-0 small text-black-50');
@@ -37,15 +38,14 @@ const createFeedItem = (feeds, feedArr) => {
 
   input.value = '';
   input.focus();
-  return null;
 };
 
-export default (respEmpty, respSt, feeds, feedArr) => {
-  if (feedArr.length === 0 || respEmpty === true || respSt !== 200) return false;
+export default (errOfRepeat, feeds, feedArr, feedsId) => {
+  if (feedArr === null || errOfRepeat === true) return false;
   input.classList.remove('error');
 
   const [children] = feedsBox.children;
-  if (children !== undefined) return createFeedItem(feeds, feedArr);
+  if (children !== undefined) return createFeedItem(feeds, feedArr, feedsId);
   const lastElem = _.last(feedArr);
 
   const card = document.createElement('div');
@@ -69,6 +69,7 @@ export default (respEmpty, respSt, feeds, feedArr) => {
   const smallP = document.createElement('p');
   smallP.setAttribute('class', 'm-0 small text-black-50');
 
+  feedsId.push({ id: lastElem.id, title: lastElem.title });
   h3.textContent = lastElem.title;
   smallP.textContent = lastElem.description;
   li.append(h3, smallP);

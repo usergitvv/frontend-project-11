@@ -37,65 +37,34 @@ elements.exampleP.textContent = i18nInst.t('keyExample');
 elements.btn.textContent = i18nInst.t('keyBtn');
 
 const state = {
-  // thenresponse: [],
-  feeds: [],
-  repetError: false,
-  buildStatus: false,
+  feedsId: [],
   yupError: '',
-  loadErr: '',
-  responseEmpty: false,
-  responseFeeds: [],
-  responsePosts: [],
-  responceStatus: '',
-  input: 'ready',
-  arrFeeds: [],
-  arrPosts: [],
-  final: false,
+  networkErr: '',
+  responseFeeds: null,
+  responsePosts: null,
+  responseStatus: 200,
+  trueLinks: [],
+  errOfRepeat: '',
+  startBuilding: false,
   process: 'wait',
-  setTimeout: {
-    trueLinks: [],
-    axiosError: '',
-  },
+  final: false,
+  emptyRSS: false,
   mutation: false,
 };
-
-const fillArr = (feeds, posts, repErr) => {
-  if (repErr === true) return false;
-  const lastElemF = _.last(state.responseFeeds);
-  const lastElemP = _.last(state.responsePosts);
-  if (lastElemF) feeds.push(lastElemF);
-  if (lastElemP) posts.push(lastElemP);
-  return null;
-};
-
 // eslint-disable-next-line
 const watchedState = onChange(state, (path) => {
-
-  fillArr(state.arrFeeds, state.arrPosts, state.repetError);
-  const billetFeeds = state.arrFeeds.flat();
-  const uniqFeeds = _.uniq(billetFeeds);
-  const uniqPosts = _.last(state.arrPosts);
-
-  if (state.yupError !== '') elements.dangerP.textContent = state.yupError;
-
-  if (state.repetError === true) {
+  if (state.yupError) {
+    elements.dangerP.textContent = state.yupError;
     elements.input.classList.add('error');
     elements.dangerP.classList.remove('text-success');
     elements.dangerP.classList.add('text-danger');
   }
-
-  if (state.input === '') {
+  if (state.yupError === '') {
     elements.input.classList.remove('error');
-    elements.dangerP.textContent = '';
-    elements.dangerP.classList.remove('text-success');
-    elements.dangerP.classList.add('text-danger');
-  }
-  if (state.repetError === false) {
-    elements.input.classList.remove('error');
-    state.yupError = '';
   }
 
   if (state.process === 'processing') {
+    elements.input.classList.remove('error');
     elements.input.setAttribute('disabled', '');
     elements.btn.setAttribute('disabled', '');
     elements.dangerP.textContent = '';
@@ -105,48 +74,60 @@ const watchedState = onChange(state, (path) => {
     elements.btn.removeAttribute('disabled');
   }
 
-  if (state.responseEmpty === true && _.last(state.responseFeeds) === null) {
+  if (state.emptyRSS === true) {
     elements.dangerP.classList.remove('text-success');
     elements.dangerP.classList.add('text-danger');
     elements.dangerP.textContent = i18nInst.t('errTexts.invalid');
-
-    if (state.yupError !== '') state.responseEmpty = false;
   }
 
-  if (uniqFeeds.length !== 0 && state.buildStatus === true
-    && state.final === true && _.last(state.responseFeeds) !== null) {
-    elements.input.value = '';
+  if (state.startBuilding === true && state.yupError === ''
+    && state.final === true) {
+    elements.input.classList.remove('error');
     elements.dangerP.classList.remove('text-danger');
     elements.dangerP.classList.add('text-success');
     elements.dangerP.textContent = i18nInst.t('valid');
-    createFeedBlock(state.responseEmpty, state.responceStatus, '.feeds', uniqFeeds);
-    createPostBlock(state.responseEmpty, state.responceStatus, '.posts', uniqPosts);
-    state.buildStatus = false;
+    createFeedBlock(state.errOfRepeat, '.feeds', state.responseFeeds, state.feedsId);
+    createPostBlock(state.errOfRepeat, '.posts', state.responsePosts);
+    state.startBuilding = false;
     state.final = false;
 
-    const filteredLinks = state.setTimeout.trueLinks.filter((link) => link !== undefined);
-    const workingLinks = _.uniq(filteredLinks);
+    const uniq = _.uniq(state.trueLinks);
     const getNewsUpdate = (links) => {
       const billet = links.map((link) => `https://allorigins.hexlet.app/get?disableCache=true&url=${link}`);
       const urls = billet.map((detail) => axios(detail).then((response) => response.data.contents));
       Promise.all(urls)
         .then((data) => {
           data.forEach((item) => {
-            if (makeParsingForAxios(item, state.responseFeeds) === false) {
+            if (makeParsingForAxios(item, state.feedsId) === false) {
               throw new Error('No data');
             }
-            const info = makeParsingForAxios(item, state.responseFeeds);
+            const info = makeParsingForAxios(item, state.feedsId);
             const [posts] = info;
             makeUpdatedRendering(posts, elements.postsDiv);
           });
         })
+        .then(() => {
+          const liButtons = elements.postsDiv.querySelectorAll('.btn-sm');
+          liButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+              callModal(btn);
+            });
+          });
+          const linksLi = elements.postsDiv.querySelectorAll('li a');
+          linksLi.forEach((link) => {
+            link.addEventListener('click', () => {
+              link.classList.remove('fw-bold');
+              link.classList.add('fw-normal');
+              link.classList.add('visited');
+            });
+          });
+        })
         .catch((error) => {
-          state.setTimeout.axiosError = error;
           console.log(error);
         });
       setTimeout(getNewsUpdate, 5000, links);
     };
-    getNewsUpdate(workingLinks);
+    setTimeout(() => getNewsUpdate(uniq), 5000);
   }
 
   if (state.mutation === true) {
@@ -166,15 +147,11 @@ const watchedState = onChange(state, (path) => {
     });
   }
 
-  if (state.loadErr === 'Network Error' && state.responceStatus !== 200) {
+  if (state.networkErr || state.responseStatus !== 200) {
     elements.dangerP.classList.remove('text-success');
     elements.dangerP.classList.add('text-danger');
     elements.dangerP.textContent = i18nInst.t('errTexts.networkErr');
   }
-  // Promise.all(state.thenresponse)
-  //   .then((data) => console.log(data))
-  //   .catch((err) => console.log(err));
-  // console.log(state.thenresponse);
 });
 
 export default watchedState;

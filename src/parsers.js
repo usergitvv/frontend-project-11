@@ -1,12 +1,19 @@
-import { uniqueId } from 'lodash';
+/* eslint-disable camelcase */
+import { isPlainObject, uniqueId } from 'lodash';
 
 export default (response) => {
+  if (!isPlainObject(response)) return false;
+  if (response.data.contents === null) return false;
   const parser = new DOMParser();
-  const doc = parser.parseFromString(response, 'application/xml');
-  // console.log(response);
+  const doc = parser.parseFromString(response.data.contents, 'application/xml');
+  if (response.data.status) {
+    const { content_type } = response.data.status;
+    if (content_type === 'text/html; charset=utf-8') return 'emptyRSS';
+  } else return false;
 
   const channel = doc.querySelector('channel');
   if (channel) {
+    const { url } = response.data.status;
     const feed = [];
     const posts = [];
     const titleF = doc.querySelector('channel title');
@@ -32,45 +39,43 @@ export default (response) => {
         link: link.textContent,
       });
     });
-    return [feed, posts];
+    return [feed, posts, url, response.status];
   }
   return false;
 };
 
-const getFeedId = (feedsArr, channel) => {
-  if (feedsArr === null) return false;
+const getFeedId = (feedsId, channel) => {
+  if (feedsId.length === 0) return false;
   let idFeed;
-  feedsArr.forEach((arr) => {
-    if (arr === null) return false;
-    for (let i = 0; i < arr.length; i += 1) {
-      const { title, id } = arr[i];
-      if (title === channel) idFeed = id;
-    }
+  feedsId.forEach((obj) => {
+    const { title, id } = obj;
+    if (title === channel) idFeed = id;
     return null;
   });
   return idFeed;
 };
 
-const makeParsingForAxios = (response, feeds) => {
+const makeParsingForAxios = (response, feedsId) => {
+  if (feedsId.length === 0) return false;
   const parser = new DOMParser();
   const doc = parser.parseFromString(response, 'application/xml');
 
   const channel = doc.querySelector('channel');
   if (channel) {
     const posts = [];
-    const titleF = doc.querySelector('channel title'); //
+    const titleFeed = doc.querySelector('channel title');
     const items = doc.querySelectorAll('item');
     items.forEach((item) => {
       if (item === null) return false;
-      const titleP = item.querySelector('title');
+      const titlePost = item.querySelector('title');
       const link = item.querySelector('link');
       const postDescription = item.querySelector('description');
       const idP = uniqueId('post_');
-      const feedId = getFeedId(feeds, titleF.textContent);
+      const feedId = getFeedId(feedsId, titleFeed.textContent);
       posts.push({
         idFeed: feedId,
         id: idP,
-        title: titleP.textContent,
+        title: titlePost.textContent,
         description: postDescription.textContent,
         link: link.textContent,
       });
