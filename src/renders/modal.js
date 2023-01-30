@@ -34,14 +34,14 @@ const callModal = (btn) => {
   btnLink.setAttribute('rel', 'noopener noreferrer');
   btnLink.textContent = i18nInst.t('modal.primary');
 
+  const modalTitle = document.querySelector('.modal-title');
+  const modalBody = document.querySelector('.modal-body');
+  modalTitle.textContent = link.textContent;
+  modalBody.innerHTML = description.textContent;
+
   const modalFooter = document.querySelector('.modal-footer');
   readMore.remove();
   modalFooter.prepend(btnLink);
-
-  const modalTitle = document.querySelector('.modal-title');
-  const modalBody = document.querySelector('.modal-body p');
-  modalTitle.textContent = link.textContent;
-  modalBody.textContent = description.textContent;
 };
 
 export default callModal;
