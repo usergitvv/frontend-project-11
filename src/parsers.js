@@ -6,10 +6,8 @@ export default (response) => {
   if (response.data.contents === null) return false;
   const parser = new DOMParser();
   const doc = parser.parseFromString(response.data.contents, 'application/xml');
-  if (response.data.status) {
-    const { content_type } = response.data.status;
-    if (content_type === 'text/html; charset=utf-8') return 'emptyRSS';
-  } else return false;
+  const errorNode = doc.querySelector('parsererror');
+  if (errorNode) return 'emptyRSS';
 
   const channel = doc.querySelector('channel');
   if (channel) {
