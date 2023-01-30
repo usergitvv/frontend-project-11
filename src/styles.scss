@@ -10,19 +10,6 @@ body {
     box-shadow: 0 0 2px 2px rgba(255, 0, 0, 0.6);
 }
 
-.modal {
-    opacity: 0;
-    transform: translateY(-5%);
-    transition: opacity 200ms linear, transform 300ms ease-out;
-    &.show {    
-        opacity: 100%;
-        transform: translateY(0);
-        transition: opacity 200ms linear, transform 300ms ease-in;
-    }
-}
-
 .visited {
     color: gray;    
 }
-
-
