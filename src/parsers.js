@@ -5,7 +5,7 @@ export default (response) => {
   if (!isPlainObject(response)) return false;
   if (response.data.contents === null) return false;
   const parser = new DOMParser();
-  const doc = parser.parseFromString(response.data.contents, 'application/xml');
+  const doc = parser.parseFromString(response.data.contents, 'text/xml');
   const errorNode = doc.querySelector('parsererror');
   if (errorNode) {
     return 'emptyRSS';
@@ -57,7 +57,7 @@ const getFeedId = (feedsId, channel) => {
 const makeParsingForAxios = (response, feedsId) => {
   if (feedsId.length === 0) return false;
   const parser = new DOMParser();
-  const doc = parser.parseFromString(response, 'application/xml');
+  const doc = parser.parseFromString(response, 'text/xml');
   const errorNode = doc.querySelector('parsererror');
   if (errorNode) {
     return false;
