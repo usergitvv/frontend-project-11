@@ -21,7 +21,8 @@ const callModal = (btn) => {
   link.classList.add('visited');
 
   const description = btn.nextElementSibling;
-  const modalBodyContent = description.textContent;
+  const draftContent = description.textContent;
+  const modalBodyContent = draftContent.slice(2);
 
   const readMore = document.querySelector('.btn-primary');
   const close = document.querySelector('.btn-secondary');

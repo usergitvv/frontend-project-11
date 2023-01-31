@@ -39,7 +39,7 @@ const createElemLi = (idfeed, itemlink, title, description) => {
 
   const descriptionP = document.createElement('p');
   descriptionP.setAttribute('style', 'display: none');
-  descriptionP.textContent = description;
+  descriptionP.textContent = `##${description}`;
   li.append(link, btn, descriptionP);
   return li;
 };
