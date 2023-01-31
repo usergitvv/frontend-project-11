@@ -21,6 +21,7 @@ const callModal = (btn) => {
   link.classList.add('visited');
 
   const description = btn.nextElementSibling;
+  const modalBodyContent = description.textContent;
 
   const readMore = document.querySelector('.btn-primary');
   const close = document.querySelector('.btn-secondary');
@@ -37,7 +38,7 @@ const callModal = (btn) => {
   const modalTitle = document.querySelector('.modal-title');
   const modalBody = document.querySelector('.modal-body');
   modalTitle.textContent = link.textContent;
-  modalBody.innerHTML = description.textContent;
+  modalBody.innerHTML = modalBodyContent;
 
   const modalFooter = document.querySelector('.modal-footer');
   readMore.remove();
