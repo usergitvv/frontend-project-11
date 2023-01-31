@@ -39,7 +39,8 @@ const createElemLi = (idfeed, itemlink, title, description) => {
 
   const descriptionP = document.createElement('p');
   descriptionP.setAttribute('style', 'display: none');
-  descriptionP.textContent = `##${description}`;
+  const reversedDescription = description.split('').reverse().join('');
+  descriptionP.textContent = reversedDescription;
   li.append(link, btn, descriptionP);
   return li;
 };

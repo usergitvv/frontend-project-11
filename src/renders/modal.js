@@ -21,8 +21,8 @@ const callModal = (btn) => {
   link.classList.add('visited');
 
   const description = btn.nextElementSibling;
-  const draftContent = description.textContent;
-  const modalBodyContent = draftContent.slice(2);
+  const reversedDescription = description.textContent;
+  const modalBodyContent = reversedDescription.split('').reverse().join('');
 
   const readMore = document.querySelector('.btn-primary');
   const close = document.querySelector('.btn-secondary');
