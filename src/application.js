@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import * as yup from 'yup';
 import i18n from 'i18next';
 import axios from 'axios';
@@ -68,7 +67,7 @@ export default () => {
     }
 
     const routes = {
-      rssPath: () => `https://allorigins.hexlet.app/get?disableCache=true&url=${inputValue}`,
+      rssPath: () => `https://allorigins.hexlet.app/get?disableCache=true&url=${inputValue.trim()}`,
     };
     axios.get(routes.rssPath(), { timeout: 12000 })
       .then((response) => {

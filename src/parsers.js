@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { isPlainObject, uniqueId } from 'lodash';
 
 export default (response) => {
