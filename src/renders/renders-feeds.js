@@ -1,20 +1,6 @@
-import i18n from 'i18next';
 import _ from 'lodash';
-import ru from '../locales/ru.js';
 
-const i18nInst = i18n.createInstance();
-i18nInst.init({
-  lng: 'ru',
-  debug: false,
-  resources: {
-    ru,
-  },
-}, (err, t) => {
-  if (err) return console.log('something went wrong loading', err);
-  return t('key');
-});
-
-const input = document.getElementById('url-input');
+const input = document.querySelector('#url-input');
 const feedsBox = document.querySelector('.feeds');
 
 const createFeedItem = (feeds, feedArr, feedsId) => {
@@ -37,10 +23,9 @@ const createFeedItem = (feeds, feedArr, feedsId) => {
   listGroup.prepend(li);
 
   input.value = '';
-  input.focus();
 };
 
-export default (errOfRepeat, feeds, feedArr, feedsId) => {
+export default (errOfRepeat, feeds, feedArr, feedsId, feedsHead) => {
   if (feedArr === null || errOfRepeat === true) return false;
   input.classList.remove('error');
 
@@ -56,7 +41,7 @@ export default (errOfRepeat, feeds, feedArr, feedsId) => {
   cardBody.setAttribute('class', 'card-body');
   const cardTitle = document.createElement('h4');
   cardTitle.setAttribute('class', 'card-title h4');
-  cardTitle.textContent = i18nInst.t('keyFeeds');
+  cardTitle.textContent = feedsHead;
   cardBody.appendChild(cardTitle);
   const listGroup = document.createElement('ul');
   listGroup.setAttribute('class', 'list-group bordet-0 rounded-0');
@@ -76,6 +61,5 @@ export default (errOfRepeat, feeds, feedArr, feedsId) => {
   listGroup.prepend(li);
 
   input.value = '';
-  input.focus();
   return feedsBox;
 };

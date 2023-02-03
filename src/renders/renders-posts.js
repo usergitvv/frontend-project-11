@@ -1,25 +1,12 @@
-import i18n from 'i18next';
 import _ from 'lodash';
-import ru from '../locales/ru.js';
-
-const i18nInst = i18n.createInstance();
-i18nInst.init({
-  lng: 'ru',
-  debug: false,
-  resources: {
-    ru,
-  },
-}, (err, t) => {
-  if (err) return console.log('something went wrong loading', err);
-  return t('key');
-});
 
 const postsBox = document.querySelector('.posts');
 
-const createElemLi = (idfeed, itemlink, title, description) => {
+const createElemLi = (feedId, itemlink, title, description, btnText) => {
+  if (description === undefined) return false;
   const li = document.createElement('li');
   li.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start border-0 border-end-0');
-  li.setAttribute('data-feedid', `#${idfeed}`);
+  li.setAttribute('data-feedid', `#${feedId}`);
 
   const link = document.createElement('a');
   link.setAttribute('class', 'fw-bold');
@@ -35,7 +22,7 @@ const createElemLi = (idfeed, itemlink, title, description) => {
   btn.setAttribute('data-id', '2');
   btn.setAttribute('data-bs-toggle', 'modal');
   btn.setAttribute('data-bs-target', '#modal');
-  btn.textContent = i18nInst.t('btnPosts');
+  btn.textContent = btnText;
 
   const descriptionP = document.createElement('p');
   descriptionP.setAttribute('style', 'display: none');
@@ -45,19 +32,19 @@ const createElemLi = (idfeed, itemlink, title, description) => {
   return li;
 };
 
-const createPostItem = (posts, postArr) => {
+const createPostItem = (posts, postArr, btnText) => {
   postArr.forEach((item) => {
-    const li = createElemLi(item.idFeed, item.link, item.title, item.description);
+    const li = createElemLi(item.feedId, item.link, item.title, item.description, btnText);
     const parentDiv = document.querySelector(posts);
     const listGroup = parentDiv.querySelector('ul');
     listGroup.prepend(li);
   });
 };
 
-const createPostBlock = (repeatErr, posts, postArr) => {
+const createPostBlock = (repeatErr, posts, postArr, postsHead, btnText) => {
   if (postArr === null || repeatErr === true) return false;
   const [children] = postsBox.children;
-  if (children !== undefined) return createPostItem(posts, postArr);
+  if (children !== undefined) return createPostItem(posts, postArr, btnText);
 
   const card = document.createElement('div');
   card.setAttribute('class', 'card border-0');
@@ -66,7 +53,7 @@ const createPostBlock = (repeatErr, posts, postArr) => {
   cardBody.setAttribute('class', 'card-body');
   const cardTitle = document.createElement('h4');
   cardTitle.setAttribute('class', 'card-title h4');
-  cardTitle.textContent = i18nInst.t('Посты');
+  cardTitle.textContent = postsHead;
   cardBody.appendChild(cardTitle);
   const listGroup = document.createElement('ul');
   listGroup.setAttribute('class', 'list-group bordet-0 rounded-0');
@@ -74,30 +61,31 @@ const createPostBlock = (repeatErr, posts, postArr) => {
 
   const copy = postArr.flat();
   copy.forEach((item) => {
-    const li = createElemLi(item.idFeed, item.link, item.title, item.description);
+    const li = createElemLi(item.feedId, item.link, item.title, item.description, btnText);
     listGroup.prepend(li);
   });
 
   return postsBox;
 };
 
-const makeUpdatedRendering = (posts, ancestor) => {
-  if (posts === null) return false;
-
+const makeUpdatedRendering = (posts, ancestor, btnText) => {
+  if (posts === undefined) return false;
   const lastElem = _.last(posts);
-  const controlId = lastElem.idFeed;
+  const controlId = lastElem.feedId;
   const listGroup = ancestor.querySelector('ul');
   posts.forEach((item) => {
     const feedLies = listGroup.querySelectorAll(`li[data-feedid="#${controlId}"]`);
+    if (feedLies.length === 0) return false;
     const allLinks = listGroup.querySelectorAll('li a');
     const linksArr = Array.from(allLinks);
     const innerTexts = linksArr.map((link) => link.textContent);
 
     const firstLi = feedLies[0];
     if (!innerTexts.includes(item.title)) {
-      const li = createElemLi(controlId, item.link, item.title, item.description);
+      const li = createElemLi(controlId, item.link, item.title, item.description, btnText);
       firstLi.before(li);
     }
+    return null;
   });
   return null;
 };

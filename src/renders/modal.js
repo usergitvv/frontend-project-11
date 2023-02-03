@@ -1,19 +1,4 @@
-import i18n from 'i18next';
-import ru from '../locales/ru.js';
-
-const i18nInst = i18n.createInstance();
-i18nInst.init({
-  lng: 'ru',
-  debug: false,
-  resources: {
-    ru,
-  },
-}, (err, t) => {
-  if (err) return console.log('something went wrong loading', err);
-  return t('key');
-});
-
-const callModal = (btn) => {
+const callModal = (btn, primaryText, secondaryText) => {
   const link = btn.previousElementSibling;
   const href = link.getAttribute('href');
   link.classList.remove('fw-bold');
@@ -26,7 +11,7 @@ const callModal = (btn) => {
 
   const readMore = document.querySelector('.btn-primary');
   const close = document.querySelector('.btn-secondary');
-  close.textContent = i18nInst.t('modal.secondary');
+  close.textContent = secondaryText;
 
   const btnLink = document.createElement('a');
   btnLink.setAttribute('class', 'btn btn-primary full-article');
@@ -34,7 +19,7 @@ const callModal = (btn) => {
   btnLink.setAttribute('role', 'button');
   btnLink.setAttribute('target', '_blank');
   btnLink.setAttribute('rel', 'noopener noreferrer');
-  btnLink.textContent = i18nInst.t('modal.primary');
+  btnLink.textContent = primaryText;
 
   const modalTitle = document.querySelector('.modal-title');
   const modalBody = document.querySelector('.modal-body');

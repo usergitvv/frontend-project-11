@@ -1,8 +1,4 @@
-### Hexlet tests and linter status:
-[![Actions Status](https://github.com/usergitvv/frontend-project-11/workflows/hexlet-check/badge.svg)](https://github.com/usergitvv/frontend-project-11/actions)
-
-### GitHub-check and CodeClimate statuses:
-[![Github-check](https://github.com/usergitvv/frontend-project-11/actions/workflows/github-check.yml/badge.svg)](https://github.com/usergitvv/frontend-project-11/actions/workflows/github-check.yml)  [![Maintainability](https://api.codeclimate.com/v1/badges/064b1aa0ab42ee4b9261/maintainability)](https://codeclimate.com/github/usergitvv/frontend-project-11/maintainability)
+[![Actions Status](https://github.com/usergitvv/frontend-project-11/workflows/hexlet-check/badge.svg)](https://github.com/usergitvv/frontend-project-11/actions) [![Github-check](https://github.com/usergitvv/frontend-project-11/actions/workflows/github-check.yml/badge.svg)](https://github.com/usergitvv/frontend-project-11/actions/workflows/github-check.yml) [![Maintainability](https://api.codeclimate.com/v1/badges/064b1aa0ab42ee4b9261/maintainability)](https://codeclimate.com/github/usergitvv/frontend-project-11/maintainability)
 
 #### Ссылка на проект:   https://frontend-project-11-six-blond.vercel.app/
 #### Описание:
@@ -13,3 +9,9 @@
 * RT _https://rt.com/rss/news_
 * Фонтанка.ру _http://www.fontanka.ru/fontanka.rss_
 * Lenta.ru  _http://lenta.ru/l/r/EX/import.rss_
+
+#### Установка в свою систему
+Откройте страницу проекта на GitHub по ссылке: _https://github.com/usergitvv/frontend-project-11_
+Далее кликните на зелёную кнопку __Code__, в открывшемся окне выберите и скопируйте SSH-ссылку. Потом откройте ту папку на своём локальном диске, в которую хотите сохранить данный проект в терминале своей операционной системы и выполните команду ___git clone SSH-ключ___  
+После этого откройте данную папку в своём редакторе кода (рекомендуется использовать VSCode), создайте там терминал и для установки зависимостей проекта выполните в терминале команду ___make install___ 
+Проект создан при помощи сборщика модулей __Webpack__, поэтому необходимо уметь работать в его среде. Ознакомтесь с командами в файле ___Makefile___, это необходимо для работы с проектом в режиме разработчика (команда ___make dev___) и для сборки ___production___-версии (команда ___make build___). Вы можете создать репозиторий проектом в своём аккаунте на GitHub, вносить в него изменения по своему усмотрению и развернуть его с помощью сервиса __Versel__ ( _https://vercel.com/_ ), создав таким образом свою версию RSS-агрегатора, находящуюся в непосредственном доступе в сети Интернет.
