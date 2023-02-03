@@ -144,7 +144,6 @@ export default () => {
               posts.forEach((post) => {
                 post.feedId = feedId;
               });
-
               makeUpdatedRendering(posts, elements.postsDiv, i18nInst.t('btnPosts'));
             });
           })
