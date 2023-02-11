@@ -41,8 +41,8 @@ const createPostItem = (posts, postArr, btnText) => {
   });
 };
 
-const createPostBlock = (repeatErr, posts, postArr, postsHead, btnText) => {
-  if (postArr === null || repeatErr === true) return false;
+const createPostBlock = (posts, postArr, postsHead, btnText) => {
+  if (postArr === null) return false;
   const [children] = postsBox.children;
   if (children !== undefined) return createPostItem(posts, postArr, btnText);
 

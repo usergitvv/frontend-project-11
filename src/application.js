@@ -9,17 +9,6 @@ import createFeedBlock from './renders/renders-feeds.js';
 import { createPostBlock, makeUpdatedRendering } from './renders/renders-posts.js';
 import callModal from './renders/modal.js';
 
-const elements = {
-  lead: document.querySelector('.lead'),
-  form: document.querySelector('form'),
-  input: document.getElementById('url-input'),
-  display3: document.querySelector('.display-3'),
-  exampleP: document.querySelector('.mt-2'),
-  btn: document.querySelector('button[type="submit"]'),
-  dangerP: document.querySelector('.feedback'),
-  postsDiv: document.querySelector('.posts'),
-};
-
 const addProxy = (url) => {
   const urlWithProxy = new URL('/get', 'https://allorigins.hexlet.app');
   urlWithProxy.searchParams.set('url', url);
@@ -39,6 +28,17 @@ const getFeedId = (feedsId, channel) => {
 };
 
 export default () => {
+  const elements = {
+    lead: document.querySelector('.lead'),
+    form: document.querySelector('form'),
+    input: document.getElementById('url-input'),
+    display3: document.querySelector('.display-3'),
+    exampleP: document.querySelector('.mt-2'),
+    btn: document.querySelector('button[type="submit"]'),
+    dangerP: document.querySelector('.feedback'),
+    postsDiv: document.querySelector('.posts'),
+  };
+
   const i18nInst = i18n.createInstance();
   i18nInst.init({
     lng: 'ru',
@@ -48,88 +48,81 @@ export default () => {
     },
   }, (err, t) => {
     if (err) return console.log('something went wrong loading', err);
+    elements.lead.textContent = i18nInst.t('keyLead');
+    elements.display3.textContent = i18nInst.t('keyHeader');
+    elements.exampleP.textContent = i18nInst.t('keyExample');
+    elements.btn.textContent = i18nInst.t('keyBtn');
     return t('key');
   });
 
-  elements.lead.textContent = i18nInst.t('keyLead');
-  elements.display3.textContent = i18nInst.t('keyHeader');
-  elements.exampleP.textContent = i18nInst.t('keyExample');
-  elements.btn.textContent = i18nInst.t('keyBtn');
-
   const state = {
-    feedsId: [],
-    yupError: '',
-    networkErr: '',
-    responseFeeds: null,
-    responsePosts: null,
-    responseStatus: 200,
-    trueLinks: [],
-    errOfRepeat: '',
-    startBuilding: false,
-    process: 'wait',
+    handlingProcess: {
+      state: 'filling',
+    },
+    form: {
+      valid: true,
+      errors: {
+        yupError: '',
+        invalidRss: '',
+      },
+    },
+    data: {
+      feedsId: [],
+      responseFeeds: null,
+      responsePosts: null,
+      trueLinks: [],
+    },
     final: false,
-    emptyRSS: false,
     mutation: false,
   };
 
   // eslint-disable-next-line
   const watchedState = onChange(state, (path) => {
-    if (state.yupError) {
-      elements.dangerP.textContent = state.yupError;
+    if (state.form.valid === false) {
+      elements.dangerP.textContent = state.form.errors.yupError;
       elements.input.classList.add('error');
       elements.dangerP.classList.remove('text-success');
       elements.dangerP.classList.add('text-danger');
     }
-    if (state.yupError === '') {
-      elements.input.classList.remove('error');
-    }
 
-    if (state.process === 'processing') {
+    if (state.handlingProcess.state === 'processing') {
+      elements.dangerP.textContent = '';
       elements.input.classList.remove('error');
       elements.input.setAttribute('disabled', '');
       elements.btn.setAttribute('disabled', '');
-      elements.dangerP.textContent = '';
     }
-    if (state.process === 'wait') {
+    if (state.handlingProcess.state === 'filling') {
       elements.input.removeAttribute('disabled');
       elements.btn.removeAttribute('disabled');
-    }
-
-    if (state.process === 'wait'
-    && elements.dangerP.textContent === i18nInst.t('valid')) {
       elements.input.focus();
     }
 
-    if (state.emptyRSS === true) {
+    if (state.handlingProcess.state === 'failed') {
       elements.dangerP.classList.remove('text-success');
       elements.dangerP.classList.add('text-danger');
-      elements.dangerP.textContent = i18nInst.t('errTexts.invalid');
+      elements.dangerP.textContent = state.form.errors.invalidRss;
     }
 
-    if (state.startBuilding === true && state.yupError === ''
-      && state.final === true) {
+    if (state.handlingProcess.state === 'success'
+    && state.final) {
       elements.input.classList.remove('error');
       elements.dangerP.classList.remove('text-danger');
       elements.dangerP.classList.add('text-success');
       elements.dangerP.textContent = i18nInst.t('valid');
       createFeedBlock(
-        state.errOfRepeat,
         '.feeds',
-        state.responseFeeds,
-        state.feedsId,
+        state.data.responseFeeds,
+        state.data.feedsId,
         i18nInst.t('keyFeeds'),
       );
       createPostBlock(
-        state.errOfRepeat,
         '.posts',
-        state.responsePosts,
+        state.data.responsePosts,
         i18nInst.t('keyPosts'),
         i18nInst.t('btnPosts'),
       );
-      state.startBuilding = false;
-      state.final = false;
 
-      const uniq = _.uniq(state.trueLinks);
+      const uniq = _.uniq(state.data.trueLinks);
       const getNewsUpdate = (links) => {
         const billet = links.map((link) => addProxy(link));
         const urls = billet.map((url) => axios(url)
@@ -139,8 +132,8 @@ export default () => {
           .then((data) => {
             data.forEach((item) => {
               const info = parse(item);
-              const [, posts, , channel] = info;
-              const feedId = getFeedId(state.feedsId, channel);
+              const { posts, titlefeed } = info;
+              const feedId = getFeedId(state.data.feedsId, titlefeed);
               posts.forEach((post) => {
                 post.feedId = feedId;
               });
@@ -187,81 +180,74 @@ export default () => {
         });
       });
     }
-
-    if (state.networkErr || state.responseStatus !== 200) {
-      elements.dangerP.classList.remove('text-success');
-      elements.dangerP.classList.add('text-danger');
-      elements.dangerP.textContent = i18nInst.t('errTexts.networkErr');
-    }
   });
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    watchedState.responseFeeds = null;
-    watchedState.responsePosts = null;
-    watchedState.process = 'processing';
-    watchedState.yupError = '';
-    watchedState.errOfRepeat = '';
-    watchedState.startBuilding = false;
-    watchedState.final = false;
-    watchedState.emptyRSS = false;
-    watchedState.networkErr = '';
-    watchedState.responseStatus = 200;
-
-    const inputValue = elements.input.value;
+    const inputValue = elements.input.value.trim();
 
     const schema = yup.object({
       feedUrl: yup.string().url(i18nInst.t('errTexts.errUrl'))
         .notOneOf(
-          watchedState.trueLinks,
+          watchedState.data.trueLinks,
           i18nInst.t('errTexts.errFeed'),
         )
         .required(i18nInst.t('errTexts.required')),
     });
+
     schema.validate({ feedUrl: inputValue })
-      .then((feed) => feed)
-      .catch((err) => {
-        watchedState.yupError = err.message;
-        if (err.message === i18nInst.t('errTexts.errFeed')) {
-          watchedState.errOfRepeat = true;
-        }
-      });
+      .then((link) => {
+        watchedState.handlingProcess.state = 'processing';
+        watchedState.final = false;
 
-    const link = inputValue.trim();
-    const url = addProxy(link);
-    axios.get(url, { timeout: 12000 })
-      .then((response) => {
-        const data = parse(response);
-        const [feed, posts, status] = data;
-        const feedId = _.uniqueId('feed_');
-        feed[0].id = feedId;
-        watchedState.responseFeeds = feed;
+        const url = addProxy(link.feedUrl);
+        axios.get(url, { timeout: 12000 })
+          .then((response) => {
+            const data = parse(response);
+            const { feed, posts } = data;
+            const feedId = _.uniqueId('feed_');
+            feed.id = feedId;
+            watchedState.data.responseFeeds = feed;
 
-        posts.forEach((post) => {
-          post.feedId = feedId;
-          post.id = _.uniqueId('post_');
-        });
-        watchedState.responsePosts = posts;
-        watchedState.startBuilding = true;
-        watchedState.responseStatus = status;
-        if (navigator.onLine) {
-          watchedState.trueLinks.push(link);
-        }
+            posts.forEach((post) => {
+              post.feedId = feedId;
+              post.id = _.uniqueId('post_');
+            });
+            watchedState.form.valid = true;
+            watchedState.form.errors.yupError = '';
+            watchedState.data.responsePosts = posts;
+            if (navigator.onLine) {
+              watchedState.data.trueLinks.push(link.feedUrl);
+            }
+            watchedState.handlingProcess.state = 'success';
+          })
+          .catch((err) => {
+            if (err.message === 'Error null') {
+              watchedState.data.responseFeeds = null;
+              watchedState.data.responsePosts = null;
+            }
+            if (err.message === 'Empty RSS') {
+              watchedState.handlingProcess.state = 'failed';
+              watchedState.form.errors.invalidRss = i18nInst.t('errTexts.invalid');
+            } else {
+              watchedState.handlingProcess.state = 'failed';
+              watchedState.form.errors.invalidRss = i18nInst.t('errTexts.networkErr');
+            }
+          })
+          .finally(() => {
+            watchedState.final = true;
+            watchedState.handlingProcess.state = 'filling';
+          });
       })
       .catch((err) => {
-        if (err.message === 'Error null') {
-          watchedState.responseFeeds = null;
-          watchedState.responsePosts = null;
-        }
-        if (err.message === 'Empty RSS') watchedState.emptyRSS = true;
-        if (err.message === 'Network Error'
-        || err.message === 'timeout of 12000ms exceeded') watchedState.networkErr = err.message;
-      })
-      .finally(() => {
-        watchedState.final = true;
-        watchedState.process = 'wait';
+        watchedState.form.valid = false;
+        watchedState.form.errors.yupError = err.message;
       });
+  });
+
+  elements.input.addEventListener('input', () => {
+    watchedState.handlingProcess.state = 'filling';
   });
 
   const observer = new MutationObserver((mutations) => {

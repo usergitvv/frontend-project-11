@@ -8,26 +8,31 @@ export default (response) => {
     }
     throw new Error('Empty RSS');
   }
-  const feed = [];
-  const posts = [];
+
   const titleFeed = doc.querySelector('channel title');
   const feedDescription = doc.querySelector('description');
 
-  feed.push({
+  const feed = {
     title: titleFeed.textContent,
     description: feedDescription.textContent,
-  });
+  };
 
   const items = doc.querySelectorAll('item');
-  items.forEach((item) => {
+  const itemsArr = Array.from(items);
+
+  const posts = itemsArr.map((item) => {
     const titlePost = item.querySelector('title');
     const link = item.querySelector('link');
     const postDescription = item.querySelector('description');
-    posts.push({
+    return {
       title: titlePost.textContent,
       description: postDescription.textContent,
       link: link.textContent,
-    });
+    };
   });
-  return [feed, posts, response.status, titleFeed.textContent];
+  return {
+    feed,
+    posts,
+    titlefeed: titleFeed.textContent,
+  };
 };
