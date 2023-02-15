@@ -22,7 +22,6 @@ const createFeedItem = (feeds, feedObj, feedsId) => {
 };
 
 export default (feeds, feedObj, feedsId, feedsHead) => {
-  if (feedObj === null) return false;
   input.classList.remove('error');
 
   const [children] = feedsBox.children;

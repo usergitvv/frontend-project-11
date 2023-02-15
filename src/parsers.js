@@ -3,9 +3,6 @@ export default (response) => {
   const doc = parser.parseFromString(response.data.contents, 'text/xml');
   const errorNode = doc.querySelector('parsererror');
   if (errorNode) {
-    if (response.data.contents === null) {
-      throw new Error('Error null');
-    }
     throw new Error('Empty RSS');
   }
 

@@ -24,7 +24,7 @@ const callModal = (btn, primaryText, secondaryText) => {
   const modalTitle = document.querySelector('.modal-title');
   const modalBody = document.querySelector('.modal-body');
   modalTitle.textContent = link.textContent;
-  modalBody.innerHTML = modalBodyContent;
+  modalBody.textContent = modalBodyContent;
 
   const modalFooter = document.querySelector('.modal-footer');
   readMore.remove();

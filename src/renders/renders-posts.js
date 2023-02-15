@@ -3,7 +3,6 @@ import _ from 'lodash';
 const postsBox = document.querySelector('.posts');
 
 const createElemLi = (feedId, itemlink, title, description, btnText) => {
-  if (description === undefined) return false;
   const li = document.createElement('li');
   li.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start border-0 border-end-0');
   li.setAttribute('data-feedid', `#${feedId}`);
@@ -42,7 +41,6 @@ const createPostItem = (posts, postArr, btnText) => {
 };
 
 const createPostBlock = (posts, postArr, postsHead, btnText) => {
-  if (postArr === null) return false;
   const [children] = postsBox.children;
   if (children !== undefined) return createPostItem(posts, postArr, btnText);
 
@@ -69,23 +67,23 @@ const createPostBlock = (posts, postArr, postsHead, btnText) => {
 };
 
 const makeUpdatedRendering = (posts, ancestor, btnText) => {
-  if (posts === undefined) return false;
-  const lastElem = _.last(posts);
-  const controlId = lastElem.feedId;
-  const listGroup = ancestor.querySelector('ul');
-  posts.forEach((item) => {
-    const feedLies = listGroup.querySelectorAll(`li[data-feedid="#${controlId}"]`);
-    if (feedLies.length === 0) return false;
-    const allLinks = listGroup.querySelectorAll('li a');
-    const linksArr = Array.from(allLinks);
-    const innerTexts = linksArr.map((link) => link.textContent);
+  posts.forEach((postObj) => {
+    const lastElem = _.last(postObj);
+    const controlId = lastElem.feedId;
+    const listGroup = ancestor.querySelector('ul');
+    postObj.forEach((item) => {
+      const feedLies = listGroup.querySelectorAll(`li[data-feedid="#${controlId}"]`);
+      const allLinks = listGroup.querySelectorAll('li a');
+      const linksArr = Array.from(allLinks);
+      const innerTexts = linksArr.map((link) => link.textContent);
 
-    const firstLi = feedLies[0];
-    if (!innerTexts.includes(item.title)) {
-      const li = createElemLi(controlId, item.link, item.title, item.description, btnText);
-      firstLi.before(li);
-    }
-    return null;
+      const firstLi = feedLies[0];
+      if (!innerTexts.includes(item.title)) {
+        const li = createElemLi(controlId, item.link, item.title, item.description, btnText);
+        firstLi.before(li);
+      }
+      return null;
+    });
   });
   return null;
 };
