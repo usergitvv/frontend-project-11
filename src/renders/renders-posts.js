@@ -1,8 +1,6 @@
 import _ from 'lodash';
 
-const postsBox = document.querySelector('.posts');
-
-const createElemLi = (feedId, itemlink, title, description, btnText) => {
+const createElemLi = (feedId, postId, itemlink, title, description, btnText) => {
   const li = document.createElement('li');
   li.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start border-0 border-end-0');
   li.setAttribute('data-feedid', `#${feedId}`);
@@ -11,6 +9,7 @@ const createElemLi = (feedId, itemlink, title, description, btnText) => {
   link.setAttribute('class', 'fw-bold');
   link.setAttribute('href', itemlink);
   link.setAttribute('data-id', '2');
+  link.setAttribute('data-postid', `#${postId}`);
   link.setAttribute('target', '_blank');
   link.setAttribute('rel', 'noopener noreferrer');
   link.textContent = title;
@@ -33,7 +32,7 @@ const createElemLi = (feedId, itemlink, title, description, btnText) => {
 
 const createPostItem = (posts, postArr, btnText) => {
   postArr.forEach((item) => {
-    const li = createElemLi(item.feedId, item.link, item.title, item.description, btnText);
+    const li = createElemLi(item.feedId, item.id, item.link, item.title, item.description, btnText);
     const parentDiv = document.querySelector(posts);
     const listGroup = parentDiv.querySelector('ul');
     listGroup.prepend(li);
@@ -41,6 +40,7 @@ const createPostItem = (posts, postArr, btnText) => {
 };
 
 const createPostBlock = (posts, postArr, postsHead, btnText) => {
+  const postsBox = document.querySelector('.posts');
   const [children] = postsBox.children;
   if (children !== undefined) return createPostItem(posts, postArr, btnText);
 
@@ -59,7 +59,7 @@ const createPostBlock = (posts, postArr, postsHead, btnText) => {
 
   const copy = postArr.flat();
   copy.forEach((item) => {
-    const li = createElemLi(item.feedId, item.link, item.title, item.description, btnText);
+    const li = createElemLi(item.feedId, item.id, item.link, item.title, item.description, btnText);
     listGroup.prepend(li);
   });
 
@@ -79,13 +79,18 @@ const makeUpdatedRendering = (posts, ancestor, btnText) => {
 
       const firstLi = feedLies[0];
       if (!innerTexts.includes(item.title)) {
-        const li = createElemLi(controlId, item.link, item.title, item.description, btnText);
+        const li = createElemLi(
+          controlId,
+          item.id,
+          item.link,
+          item.title,
+          item.description,
+          btnText,
+        );
         firstLi.before(li);
       }
-      return null;
     });
   });
-  return null;
 };
 
 export {

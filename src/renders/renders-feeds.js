@@ -1,7 +1,5 @@
-const input = document.querySelector('#url-input');
-const feedsBox = document.querySelector('.feeds');
-
 const createFeedItem = (feeds, feedObj, feedsId) => {
+  const input = document.querySelector('#url-input');
   const li = document.createElement('li');
   li.setAttribute('class', 'list-group-item border-0 border-end-0');
   const h3 = document.createElement('h3');
@@ -22,6 +20,8 @@ const createFeedItem = (feeds, feedObj, feedsId) => {
 };
 
 export default (feeds, feedObj, feedsId, feedsHead) => {
+  const input = document.querySelector('#url-input');
+  const feedsBox = document.querySelector('.feeds');
   input.classList.remove('error');
 
   const [children] = feedsBox.children;

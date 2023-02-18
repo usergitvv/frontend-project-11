@@ -8,21 +8,15 @@ import parse from './parsers.js';
 import createFeedBlock from './renders/renders-feeds.js';
 import { createPostBlock, makeUpdatedRendering } from './renders/renders-posts.js';
 import callModal from './renders/modal.js';
+import { addProxy, getFeedId, changeLinkStyle } from './utils.js';
 
-const addProxy = (url) => {
-  const urlWithProxy = new URL('/get', 'https://allorigins.hexlet.app');
-  urlWithProxy.searchParams.set('url', url);
-  urlWithProxy.searchParams.set('disableCache', 'true');
-  return urlWithProxy.toString();
-};
-
-const getFeedId = (arrWithFeedsId, channel) => {
-  let feedId;
-  arrWithFeedsId.forEach((obj) => {
-    const { title, id } = obj;
-    if (title === channel) feedId = id;
+const addModal = (postsDiv, primary, secondary) => {
+  const liButtons = postsDiv.querySelectorAll('.btn-sm');
+  return liButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      callModal(btn, primary, secondary);
+    });
   });
-  return feedId;
 };
 
 export default () => {
@@ -54,7 +48,8 @@ export default () => {
 
       const state = {
         handlingProcess: {
-          state: 'filling',
+          state: 'waiting',
+          requestEnd: false,
         },
         form: {
           valid: true,
@@ -68,11 +63,12 @@ export default () => {
           responseFeeds: null,
           responsePosts: null,
           trueLinks: [],
-          updatedPosts: [],
-          isUpdated: false,
+          visitedLinks: [],
         },
-        final: false,
-        mutation: false,
+        updatedData: {
+          isUpdated: false,
+          updatedPosts: undefined,
+        },
       };
 
       // eslint-disable-next-line
@@ -84,16 +80,19 @@ export default () => {
           elements.dangerP.classList.add('text-danger');
         }
 
+        const visited = _.uniq(state.data.visitedLinks);
         if (state.handlingProcess.state === 'processing') {
           elements.dangerP.textContent = '';
           elements.input.classList.remove('error');
           elements.input.setAttribute('disabled', '');
           elements.btn.setAttribute('disabled', '');
+          changeLinkStyle(elements.postsDiv, visited);
         }
-        if (state.handlingProcess.state === 'filling') {
+        if (state.handlingProcess.state === 'waiting') {
           elements.input.removeAttribute('disabled');
           elements.btn.removeAttribute('disabled');
           elements.input.focus({ preventScroll: true });
+          changeLinkStyle(elements.postsDiv, visited);
         }
 
         if (state.handlingProcess.state === 'failed') {
@@ -103,7 +102,7 @@ export default () => {
         }
 
         if (state.handlingProcess.state === 'success'
-        && state.final) {
+         && state.handlingProcess.requestEnd) {
           elements.input.classList.remove('error');
           elements.dangerP.classList.remove('text-danger');
           elements.dangerP.classList.add('text-success');
@@ -120,27 +119,15 @@ export default () => {
             i18nInst.t('keyPosts'),
             i18nInst.t('btnPosts'),
           );
+
+          addModal(elements.postsDiv, i18nInst.t('modal.primary'), i18nInst.t('modal.secondary'));
+          changeLinkStyle(elements.postsDiv, visited);
         }
 
-        if (state.data.isUpdated) {
-          makeUpdatedRendering(state.data.updatedPosts, elements.postsDiv, i18nInst.t('btnPosts'));
-        }
-
-        if (state.mutation === true) {
-          const liButtons = elements.postsDiv.querySelectorAll('.btn-sm');
-          liButtons.forEach((btn) => {
-            btn.addEventListener('click', () => {
-              callModal(btn, i18nInst.t('modal.primary'), i18nInst.t('modal.secondary'));
-            });
-          });
-          const links = elements.postsDiv.querySelectorAll('li a');
-          links.forEach((link) => {
-            link.addEventListener('click', () => {
-              link.classList.remove('fw-bold');
-              link.classList.add('fw-normal');
-              link.classList.add('visited');
-            });
-          });
+        if (state.updatedData.isUpdated) {
+          makeUpdatedRendering(state.updatedData.updatedPosts, elements.postsDiv, i18nInst.t('btnPosts'));
+          addModal(elements.postsDiv, i18nInst.t('modal.primary'), i18nInst.t('modal.secondary'));
+          changeLinkStyle(elements.postsDiv, visited);
         }
       });
 
@@ -161,7 +148,7 @@ export default () => {
         schema.validate({ feedUrl: inputValue })
           .then((request) => {
             watchedState.handlingProcess.state = 'processing';
-            watchedState.final = false;
+            watchedState.handlingProcess.requestEnd = false;
 
             const reqUrl = addProxy(request.feedUrl);
             axios.get(reqUrl, { timeout: 12000 })
@@ -186,14 +173,13 @@ export default () => {
                 watchedState.handlingProcess.state = 'success';
 
                 const getNewsUpdate = (links) => {
-                  watchedState.data.isUpdated = false;
-                  watchedState.data.updatedPosts.length = 0;
-
-                  const billet = links.map((link) => addProxy(link));
-                  const urls = billet.map((url) => axios(url));
+                  const urls = links.map((link) => addProxy(link))
+                    .map((url) => axios(url));
 
                   Promise.all(urls)
+                    .then((answer) => Promise.resolve(answer))
                     .then((news) => {
+                      const updatedNews = [];
                       news.forEach((issue) => {
                         const info = parse(issue);
                         // eslint-disable-next-line
@@ -205,14 +191,22 @@ export default () => {
                           post.id = _.uniqueId('post_');
                           return post;
                         });
-                        watchedState.data.updatedPosts.push(newPostsWithId);
+                        updatedNews.push(newPostsWithId);
                       });
+                      const newLinks = elements.postsDiv.querySelectorAll('li a');
+                      newLinks.forEach((link) => {
+                        link.addEventListener('click', () => {
+                          watchedState.data.visitedLinks.push(link.dataset.postid);
+                        });
+                      });
+                      watchedState.updatedData.updatedPosts = updatedNews;
+                      watchedState.updatedData.isUpdated = true;
                     })
                     .catch((error) => {
+                      watchedState.updatedData.isUpdated = false;
                       console.log(error);
                     })
                     .finally(() => {
-                      watchedState.data.isUpdated = true;
                       setTimeout(() => getNewsUpdate(links), 5000);
                     });
                 };
@@ -230,8 +224,8 @@ export default () => {
                 }
               })
               .finally(() => {
-                watchedState.final = true;
-                watchedState.handlingProcess.state = 'filling';
+                watchedState.handlingProcess.requestEnd = true;
+                watchedState.handlingProcess.state = 'waiting';
               });
           })
           .catch((err) => {
@@ -240,13 +234,16 @@ export default () => {
           });
       });
 
-      elements.input.addEventListener('input', () => {
-        watchedState.handlingProcess.state = 'filling';
-      });
-
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
-          if (mutation.type === 'childList') watchedState.mutation = true;
+          if (mutation.type === 'childList') {
+            const links = elements.postsDiv.querySelectorAll('li a');
+            links.forEach((link) => {
+              link.addEventListener('click', () => {
+                watchedState.data.visitedLinks.push(link.dataset.postid);
+              });
+            });
+          }
         });
       });
       const config = { attributes: true, childList: true, characterData: true };
