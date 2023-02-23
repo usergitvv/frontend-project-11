@@ -1,11 +1,10 @@
-const createFeedItem = (feeds, feedObj, feedsId) => {
+const createFeedItem = (feeds, feedObj) => {
   const input = document.querySelector('#url-input');
   const li = document.createElement('li');
   li.setAttribute('class', 'list-group-item border-0 border-end-0');
   const h3 = document.createElement('h3');
   h3.setAttribute('class', 'h6 m-0');
 
-  feedsId.push({ id: feedObj.id, title: feedObj.title });
   h3.textContent = feedObj.title;
   const smallP = document.createElement('p');
   smallP.setAttribute('class', 'm-0 small text-black-50');
@@ -19,13 +18,13 @@ const createFeedItem = (feeds, feedObj, feedsId) => {
   input.value = '';
 };
 
-export default (feeds, feedObj, feedsId, feedsHead) => {
+export default (feeds, feedObj, feedsHead) => {
   const input = document.querySelector('#url-input');
   const feedsBox = document.querySelector('.feeds');
   input.classList.remove('error');
 
   const [children] = feedsBox.children;
-  if (children !== undefined) return createFeedItem(feeds, feedObj, feedsId);
+  if (children !== undefined) return createFeedItem(feeds, feedObj);
 
   const card = document.createElement('div');
   card.setAttribute('class', 'card border-0');
@@ -48,7 +47,6 @@ export default (feeds, feedObj, feedsId, feedsHead) => {
   const smallP = document.createElement('p');
   smallP.setAttribute('class', 'm-0 small text-black-50');
 
-  feedsId.push({ id: feedObj.id, title: feedObj.title });
   h3.textContent = feedObj.title;
   smallP.textContent = feedObj.description;
   li.append(h3, smallP);

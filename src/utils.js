@@ -5,13 +5,9 @@ const addProxy = (url) => {
   return urlWithProxy.toString();
 };
 
-const getFeedId = (arrWithFeedsId, channel) => {
-  let feedId;
-  arrWithFeedsId.forEach((obj) => {
-    const { title, id } = obj;
-    if (title === channel) feedId = id;
-  });
-  return feedId;
+const getFeedId = (feedsId, feedTitle) => {
+  const idOfFeed = feedsId.find((obj) => obj.title === feedTitle);
+  return idOfFeed.id;
 };
 
 const changeLinkStyle = (postsDiv, visited) => {
