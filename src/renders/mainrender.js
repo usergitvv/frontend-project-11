@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { changeLinkStyle } from '../utils.js';
 import createFeedBlock from './renders-feeds.js';
-import { createPostBlock } from './renders-posts.js';
+import { createPostBlock, makeUpdatedRendering } from './renders-posts.js';
 import callModal from './modal.js';
 
 const addModal = (postsDiv, primary, secondary) => {
@@ -14,7 +14,7 @@ const addModal = (postsDiv, primary, secondary) => {
 };
 
 // eslint-disable-next-line
-const mainRender = (state, elements, i18n) => (path) => {
+export default (state, elements, i18n) => (path) => {
   if (state.form.valid === false) {
     elements.dangerP.textContent = state.form.errors.yupError;
     elements.input.classList.add('error');
@@ -64,9 +64,10 @@ const mainRender = (state, elements, i18n) => (path) => {
     addModal(elements.postsDiv, i18n.t('modal.primary'), i18n.t('modal.secondary'));
     changeLinkStyle(elements.postsDiv, visited);
   }
-};
 
-export {
-  mainRender,
-  addModal,
+  if (state.updatedData.isUpdated) {
+    makeUpdatedRendering(state.updatedData.updatedPosts, elements.postsDiv, i18n.t('btnPosts'));
+    addModal(elements.postsDiv, i18n.t('modal.primary'), i18n.t('modal.secondary'));
+    changeLinkStyle(elements.postsDiv, visited);
+  }
 };

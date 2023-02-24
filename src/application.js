@@ -5,9 +5,8 @@ import onChange from 'on-change';
 import _ from 'lodash';
 import ru from './locales/ru.js';
 import parse from './parsers.js';
-import { addProxy, getFeedId, changeLinkStyle } from './utils.js';
-import { mainRender, addModal } from './renders/mainrender.js';
-import { makeUpdatedRendering } from './renders/renders-posts.js';
+import { addProxy, getFeedId } from './utils.js';
+import mainRender from './renders/mainrender.js';
 
 export default () => {
   const i18nInst = i18n.createInstance();
@@ -55,6 +54,7 @@ export default () => {
           validLinks: [],
         },
         updatedData: {
+          isUpdated: false,
           updatedPosts: undefined,
         },
         uiState: {
@@ -74,6 +74,8 @@ export default () => {
         return schema.validate({ feedUrl: inputvalue });
       };
 
+      const watchedState = onChange(state, mainRender(state, elements, i18nInst));
+
       const getNewsUpdate = (links) => {
         const urls = links.map((link) => addProxy(link))
           .map((url) => axios.get(url));
@@ -86,7 +88,7 @@ export default () => {
               const info = parse(issue);
               // eslint-disable-next-line
               const { posts, titlefeed } = info;
-              const idOfFeed = getFeedId(state.data.feedsId, titlefeed);
+              const idOfFeed = getFeedId(watchedState.data.feedsId, titlefeed);
 
               const newPostsWithId = posts.map((post) => {
                 post.feedId = idOfFeed;
@@ -98,17 +100,14 @@ export default () => {
             const newLinks = elements.postsDiv.querySelectorAll('li a');
             newLinks.forEach((link) => {
               link.addEventListener('click', (ev) => {
-                state.uiState.visitedLinks.push(ev.target.dataset.postid);
-                changeLinkStyle(elements.postsDiv, state.uiState.visitedLinks);
+                watchedState.uiState.visitedLinks.push(ev.target.dataset.postid);
               });
             });
-            state.updatedData.updatedPosts = updatedNews;
-          })
-          .then(() => {
-            makeUpdatedRendering(state.updatedData.updatedPosts, elements.postsDiv, i18nInst.t('btnPosts'));
-            addModal(elements.postsDiv, i18nInst.t('modal.primary'), i18nInst.t('modal.secondary'));
+            watchedState.updatedData.updatedPosts = updatedNews;
+            watchedState.updatedData.isUpdated = true;
           })
           .catch((error) => {
+            watchedState.updatedData.isUpdated = false;
             console.log(error);
           })
           .finally(() => {
@@ -116,7 +115,7 @@ export default () => {
           });
       };
 
-      const watchedState = onChange(state, mainRender(state, elements, i18nInst));
+      setTimeout(() => getNewsUpdate(watchedState.data.validLinks), 5000);
 
       elements.form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -172,7 +171,6 @@ export default () => {
                       watchedState.uiState.visitedLinks.push(event.target.dataset.postid);
                     });
                   });
-                  getNewsUpdate(watchedState.data.validLinks);
                 }
               });
           })
@@ -184,6 +182,6 @@ export default () => {
       });
     })
     .catch((err) => {
-      console.log('something went wrong loading', err);
+      console.log('Something went wrong loading', err);
     });
 };
