@@ -62,8 +62,6 @@ const createPostBlock = (posts, postArr, postsHead, btnText) => {
     const li = createElemLi(item.feedId, item.id, item.link, item.title, item.description, btnText);
     listGroup.prepend(li);
   });
-
-  return postsBox;
 };
 
 const makeUpdatedRendering = (posts, ancestor, btnText) => {

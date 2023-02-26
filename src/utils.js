@@ -5,8 +5,8 @@ const addProxy = (url) => {
   return urlWithProxy.toString();
 };
 
-const getFeedId = (feedsId, feedTitle) => {
-  const idOfFeed = feedsId.find((obj) => obj.title === feedTitle);
+const getFeedId = (feeds, feedTitle) => {
+  const idOfFeed = feeds.find((obj) => obj.title === feedTitle);
   return idOfFeed.id;
 };
 

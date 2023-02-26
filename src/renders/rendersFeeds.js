@@ -1,4 +1,6 @@
-const createFeedItem = (feeds, feedObj) => {
+import _ from 'lodash';
+
+const createFeedItem = (selector, feedObj) => {
   const input = document.querySelector('#url-input');
   const li = document.createElement('li');
   li.setAttribute('class', 'list-group-item border-0 border-end-0');
@@ -11,20 +13,21 @@ const createFeedItem = (feeds, feedObj) => {
   smallP.textContent = feedObj.description;
   li.append(h3, smallP);
 
-  const parentDiv = document.querySelector(feeds);
+  const parentDiv = document.querySelector(selector);
   const listGroup = parentDiv.querySelector('ul');
   listGroup.prepend(li);
 
   input.value = '';
 };
 
-export default (feeds, feedObj, feedsHead) => {
+export default (selector, feeds, feedsHead) => {
   const input = document.querySelector('#url-input');
   const feedsBox = document.querySelector('.feeds');
   input.classList.remove('error');
+  const lastFeed = _.last(feeds);
 
   const [children] = feedsBox.children;
-  if (children !== undefined) return createFeedItem(feeds, feedObj);
+  if (children !== undefined) return createFeedItem(selector, lastFeed);
 
   const card = document.createElement('div');
   card.setAttribute('class', 'card border-0');
@@ -47,11 +50,10 @@ export default (feeds, feedObj, feedsHead) => {
   const smallP = document.createElement('p');
   smallP.setAttribute('class', 'm-0 small text-black-50');
 
-  h3.textContent = feedObj.title;
-  smallP.textContent = feedObj.description;
+  h3.textContent = lastFeed.title;
+  smallP.textContent = lastFeed.description;
   li.append(h3, smallP);
   listGroup.prepend(li);
 
   input.value = '';
-  return feedsBox;
 };

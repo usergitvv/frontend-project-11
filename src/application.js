@@ -6,7 +6,7 @@ import _ from 'lodash';
 import ru from './locales/ru.js';
 import parse from './parsers.js';
 import { addProxy, getFeedId } from './utils.js';
-import mainRender from './renders/mainrender.js';
+import mainRender from './renders/mainRender.js';
 
 export default () => {
   const i18nInst = i18n.createInstance();
@@ -38,7 +38,6 @@ export default () => {
       const state = {
         request: {
           state: 'waiting',
-          requestEnd: false,
         },
         form: {
           valid: true,
@@ -48,13 +47,8 @@ export default () => {
           },
         },
         data: {
-          feedsId: [],
-          feeds: null,
-          posts: null,
-          validLinks: [],
-        },
-        updatedData: {
-          isUpdated: false,
+          feeds: [],
+          posts: undefined,
           updatedPosts: undefined,
         },
         uiState: {
@@ -62,7 +56,8 @@ export default () => {
         },
       };
 
-      const makeValidation = (validlinks, inputvalue) => {
+      const validate = (feeds, inputvalue) => {
+        const validlinks = feeds.map((feed) => feed.link);
         const schema = yup.object({
           feedUrl: yup.string().url(i18nInst.t('errTexts.errUrl'))
             .notOneOf(
@@ -76,7 +71,8 @@ export default () => {
 
       const watchedState = onChange(state, mainRender(state, elements, i18nInst));
 
-      const getNewsUpdate = (links) => {
+      const getNewsUpdate = (feeds) => {
+        const links = feeds.map((feed) => feed.link);
         const urls = links.map((link) => addProxy(link))
           .map((url) => axios.get(url));
 
@@ -85,70 +81,62 @@ export default () => {
           .then((news) => {
             const updatedNews = [];
             news.forEach((issue) => {
-              const info = parse(issue);
-              // eslint-disable-next-line
-              const { posts, titlefeed } = info;
-              const idOfFeed = getFeedId(watchedState.data.feedsId, titlefeed);
+              const { posts, titlefeed } = parse(issue);
+              const idOfFeed = getFeedId(watchedState.data.feeds, titlefeed);
 
               const newPostsWithId = posts.map((post) => {
-                post.feedId = idOfFeed;
-                post.id = _.uniqueId('post_');
-                return post;
+                const postId = {
+                  feedId: idOfFeed,
+                  id: _.uniqueId('post_'),
+                };
+                return { ...post, ...postId };
               });
               updatedNews.push(newPostsWithId);
             });
-            const newLinks = elements.postsDiv.querySelectorAll('li a');
-            newLinks.forEach((link) => {
-              link.addEventListener('click', (ev) => {
-                watchedState.uiState.visitedLinks.push(ev.target.dataset.postid);
-              });
-            });
-            watchedState.updatedData.updatedPosts = updatedNews;
-            watchedState.updatedData.isUpdated = true;
+            watchedState.data.updatedPosts = updatedNews;
           })
           .catch((error) => {
-            watchedState.updatedData.isUpdated = false;
             console.log(error);
           })
           .finally(() => {
-            setTimeout(() => getNewsUpdate(links), 5000);
+            setTimeout(() => getNewsUpdate(feeds), 5000);
           });
       };
 
-      setTimeout(() => getNewsUpdate(watchedState.data.validLinks), 5000);
+      setTimeout(() => getNewsUpdate(watchedState.data.feeds), 5000);
 
       elements.form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const inputValue = e.target[0].value;
         watchedState.request.state = 'processing';
 
-        makeValidation(watchedState.data.validLinks, inputValue)
+        validate(watchedState.data.feeds, inputValue)
           .then((request) => {
             watchedState.request.requestEnd = false;
 
             const reqUrl = addProxy(request.feedUrl);
-            axios.get(reqUrl, { timeout: 12000 })
+            axios.get(reqUrl)
               .then((response) => {
-                const data = parse(response);
-                const { feed, posts } = data;
+                const { feed, posts } = parse(response);
                 const id = _.uniqueId('feed_');
-                const { title } = feed;
-                feed.id = id;
-                watchedState.data.feeds = feed;
-                watchedState.data.feedsId.push({ id, title });
+                const additionalKeys = {
+                  id,
+                  link: request.feedUrl,
+                };
+                watchedState.data.feeds.push({ ...feed, ...additionalKeys });
 
                 const postsWithId = posts.map((post) => {
-                  post.feedId = id;
-                  post.id = _.uniqueId('post_');
-                  return post;
+                  const identificators = {
+                    feedId: id,
+                    id: _.uniqueId('post_'),
+                  };
+                  return { ...post, ...identificators };
                 });
+
                 watchedState.form.valid = true;
                 watchedState.form.errors.yupError = '';
                 watchedState.data.posts = postsWithId;
-                if (navigator.onLine) {
-                  watchedState.data.validLinks.push(request.feedUrl);
-                }
-                watchedState.request.state = 'success';
+                watchedState.request.state = 'finished';
               })
               .catch((err) => {
                 if (err.message === 'Empty RSS') {
@@ -162,16 +150,7 @@ export default () => {
                 }
               })
               .finally(() => {
-                watchedState.request.requestEnd = true;
                 watchedState.request.state = 'waiting';
-                if (watchedState.data.feeds !== null) {
-                  const links = elements.postsDiv.querySelectorAll('li a');
-                  links.forEach((link) => {
-                    link.addEventListener('click', (event) => {
-                      watchedState.uiState.visitedLinks.push(event.target.dataset.postid);
-                    });
-                  });
-                }
               });
           })
           .catch((err) => {
@@ -179,6 +158,13 @@ export default () => {
             watchedState.form.valid = false;
             watchedState.form.errors.yupError = err.message;
           });
+      });
+
+      const postsDiv = document.querySelector('.posts');
+      postsDiv.addEventListener('click', (e) => {
+        const target = e.target.closest('a');
+        if (!target) return false;
+        watchedState.uiState.visitedLinks.push(e.target.dataset.postid);
       });
     })
     .catch((err) => {
