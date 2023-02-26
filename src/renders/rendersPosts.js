@@ -1,3 +1,4 @@
+/* eslint consistent-return: 0 */
 import _ from 'lodash';
 
 const createElemLi = (feedId, postId, itemlink, title, description, btnText) => {

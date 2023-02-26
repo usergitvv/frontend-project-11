@@ -1,3 +1,4 @@
+/* eslint consistent-return: 0 */
 import * as yup from 'yup';
 import i18n from 'i18next';
 import axios from 'axios';

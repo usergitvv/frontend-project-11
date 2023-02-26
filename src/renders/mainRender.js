@@ -1,3 +1,4 @@
+/* eslint no-unused-vars: 0 */
 import _ from 'lodash';
 import { changeLinkStyle } from '../utils.js';
 import createFeedBlock from './rendersFeeds.js';
