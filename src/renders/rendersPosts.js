@@ -1,4 +1,3 @@
-/* eslint consistent-return: 0 */
 import _ from 'lodash';
 
 const createElemLi = (feedId, postId, itemlink, title, description, btnText) => {
@@ -40,10 +39,8 @@ const createPostItem = (posts, postArr, btnText) => {
   });
 };
 
-const createPostBlock = (posts, postArr, postsHead, btnText) => {
+const createPostBlock = (postArr, postsHead, btnText) => {
   const postsBox = document.querySelector('.posts');
-  const [children] = postsBox.children;
-  if (children !== undefined) return createPostItem(posts, postArr, btnText);
 
   const card = document.createElement('div');
   card.setAttribute('class', 'card border-0');
@@ -63,6 +60,13 @@ const createPostBlock = (posts, postArr, postsHead, btnText) => {
     const li = createElemLi(item.feedId, item.id, item.link, item.title, item.description, btnText);
     listGroup.prepend(li);
   });
+};
+
+const createPosts = (posts, postArr, postsHead, btnText) => {
+  const postsBox = document.querySelector('.posts');
+  const [children] = postsBox.children;
+  if (children !== undefined) return createPostItem(posts, postArr, btnText);
+  return createPostBlock(postArr, postsHead, btnText);
 };
 
 const makeUpdatedRendering = (posts, ancestor, btnText) => {
@@ -93,6 +97,6 @@ const makeUpdatedRendering = (posts, ancestor, btnText) => {
 };
 
 export {
-  createPostBlock,
+  createPosts,
   makeUpdatedRendering,
 };

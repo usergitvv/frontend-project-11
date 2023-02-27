@@ -1,4 +1,3 @@
-/* eslint consistent-return: 0 */
 import _ from 'lodash';
 
 const createFeedItem = (selector, feedObj) => {
@@ -21,14 +20,10 @@ const createFeedItem = (selector, feedObj) => {
   input.value = '';
 };
 
-export default (selector, feeds, feedsHead) => {
+const createFeedBlock = (feeds, feedsHead) => {
   const input = document.querySelector('#url-input');
   const feedsBox = document.querySelector('.feeds');
-  input.classList.remove('error');
   const lastFeed = _.last(feeds);
-
-  const [children] = feedsBox.children;
-  if (children !== undefined) return createFeedItem(selector, lastFeed);
 
   const card = document.createElement('div');
   card.setAttribute('class', 'card border-0');
@@ -57,4 +52,12 @@ export default (selector, feeds, feedsHead) => {
   listGroup.prepend(li);
 
   input.value = '';
+};
+
+export default (selector, feeds, feedsHead) => {
+  const feedsBox = document.querySelector('.feeds');
+  const lastFeed = _.last(feeds);
+  const [children] = feedsBox.children;
+  if (children !== undefined) return createFeedItem(selector, lastFeed);
+  return createFeedBlock(feeds, feedsHead);
 };

@@ -1,4 +1,3 @@
-/* eslint consistent-return: 0 */
 import * as yup from 'yup';
 import i18n from 'i18next';
 import axios from 'axios';
@@ -139,6 +138,9 @@ export default () => {
                 watchedState.data.posts = postsWithId;
                 watchedState.request.state = 'finished';
               })
+              .then(() => {
+                watchedState.request.state = 'waiting';
+              })
               .catch((err) => {
                 if (err.message === 'Empty RSS') {
                   watchedState.form.valid = true;
@@ -149,9 +151,6 @@ export default () => {
                   watchedState.request.state = 'failed';
                   watchedState.form.errors.invalidRss = i18nInst.t('errTexts.networkErr');
                 }
-              })
-              .finally(() => {
-                watchedState.request.state = 'waiting';
               });
           })
           .catch((err) => {
@@ -164,8 +163,8 @@ export default () => {
       const postsDiv = document.querySelector('.posts');
       postsDiv.addEventListener('click', (e) => {
         const target = e.target.closest('a');
-        if (!target) return false;
-        watchedState.uiState.visitedLinks.push(e.target.dataset.postid);
+        if (target) watchedState.uiState.visitedLinks.push(e.target.dataset.postid);
+        return false;
       });
     })
     .catch((err) => {
