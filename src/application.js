@@ -40,11 +40,7 @@ export default () => {
           state: 'waiting',
         },
         form: {
-          valid: true,
-          errors: {
-            yupError: '',
-            invalidRss: '',
-          },
+          status: 'filling',
         },
         data: {
           feeds: [],
@@ -112,8 +108,6 @@ export default () => {
 
         validate(watchedState.data.feeds, inputValue)
           .then((request) => {
-            watchedState.request.requestEnd = false;
-
             const reqUrl = addProxy(request.feedUrl);
             axios.get(reqUrl)
               .then((response) => {
@@ -133,30 +127,35 @@ export default () => {
                   return { ...post, ...identificators };
                 });
 
-                watchedState.form.valid = true;
-                watchedState.form.errors.yupError = '';
+                watchedState.form.status = 'filling';
                 watchedState.data.posts = postsWithId;
                 watchedState.request.state = 'finished';
               })
-              .then(() => {
-                watchedState.request.state = 'waiting';
-              })
               .catch((err) => {
                 if (err.message === 'Empty RSS') {
-                  watchedState.form.valid = true;
-                  watchedState.request.state = 'failed';
-                  watchedState.form.errors.invalidRss = i18nInst.t('errTexts.invalid');
+                  watchedState.form.status = 'filling';
+                  const failed = {
+                    state: 'failed',
+                    error: i18nInst.t('errTexts.invalid'),
+                  };
+                  watchedState.request.state = failed;
                 } else {
-                  watchedState.form.valid = true;
-                  watchedState.request.state = 'failed';
-                  watchedState.form.errors.invalidRss = i18nInst.t('errTexts.networkErr');
+                  watchedState.form.status = 'filling';
+                  const failed = {
+                    state: 'failed',
+                    error: i18nInst.t('errTexts.networkErr'),
+                  };
+                  watchedState.request.state = failed;
                 }
               });
           })
           .catch((err) => {
             watchedState.request.state = 'waiting';
-            watchedState.form.valid = false;
-            watchedState.form.errors.yupError = err.message;
+            const invalid = {
+              valid: false,
+              yupError: err.message,
+            };
+            watchedState.form.status = invalid;
           });
       });
 

@@ -14,11 +14,10 @@ const addModal = (postsDiv, primary, secondary) => {
 };
 
 export default (state, elements, i18n) => (path, value) => {
-  const visited = _.uniq(state.uiState.visitedLinks);
   switch (path) {
-    case 'form.valid':
-      if (value === false) {
-        elements.dangerP.textContent = state.form.errors.yupError;
+    case 'form.status':
+      if (!value.valid) {
+        elements.dangerP.textContent = value.yupError;
         elements.input.classList.add('error');
         elements.dangerP.classList.remove('text-success');
         elements.dangerP.classList.add('text-danger');
@@ -35,12 +34,14 @@ export default (state, elements, i18n) => (path, value) => {
         elements.input.removeAttribute('disabled');
         elements.btn.removeAttribute('disabled');
       }
-      if (value === 'failed') {
+      if (value.state === 'failed') {
+        elements.input.classList.remove('error');
         elements.dangerP.classList.remove('text-success');
         elements.dangerP.classList.add('text-danger');
-        elements.dangerP.textContent = state.form.errors.invalidRss;
+        elements.dangerP.textContent = value.error;
         elements.input.removeAttribute('disabled');
         elements.btn.removeAttribute('disabled');
+        elements.input.focus({ preventScroll: true });
       }
       if (value === 'finished') {
         elements.input.classList.remove('error');
@@ -60,14 +61,19 @@ export default (state, elements, i18n) => (path, value) => {
         );
 
         addModal(elements.postsDiv, i18n.t('modal.primary'), i18n.t('modal.secondary'));
-        changeLinkStyle(elements.postsDiv, visited);
+        elements.input.removeAttribute('disabled');
+        elements.btn.removeAttribute('disabled');
         elements.input.focus({ preventScroll: true });
       }
       break;
+    case 'uiState.visitedLinks':
+      changeLinkStyle(elements.postsDiv, _.uniq(value));
+      break;
     case 'data.updatedPosts':
-      makeUpdatedRendering(state.data.updatedPosts, elements.postsDiv, i18n.t('btnPosts'));
-      addModal(elements.postsDiv, i18n.t('modal.primary'), i18n.t('modal.secondary'));
-      changeLinkStyle(elements.postsDiv, visited);
+      if (value) {
+        makeUpdatedRendering(state.data.updatedPosts, elements.postsDiv, i18n.t('btnPosts'));
+        addModal(elements.postsDiv, i18n.t('modal.primary'), i18n.t('modal.secondary'));
+      }
       break;
     default:
       break;
