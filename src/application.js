@@ -5,7 +5,7 @@ import onChange from 'on-change';
 import _ from 'lodash';
 import ru from './locales/ru.js';
 import parse from './parsers.js';
-import { addProxy, getFeedId } from './utils.js';
+import { addProxy, getFeedId, updatePosts } from './utils.js';
 import mainRender from './renders/mainRender.js';
 
 export default () => {
@@ -37,15 +37,16 @@ export default () => {
 
       const state = {
         request: {
-          state: 'waiting',
+          status: 'waiting',
+          error: '',
         },
         form: {
           status: 'filling',
+          error: '',
         },
         data: {
           feeds: [],
-          posts: undefined,
-          updatedPosts: undefined,
+          posts: [],
         },
         uiState: {
           visitedLinks: [],
@@ -55,12 +56,12 @@ export default () => {
       const validate = (feeds, inputvalue) => {
         const validlinks = feeds.map((feed) => feed.link);
         const schema = yup.object({
-          feedUrl: yup.string().url(i18nInst.t('errTexts.errUrl'))
+          feedUrl: yup.string().url('errTexts.errUrl')
             .notOneOf(
               validlinks,
-              i18nInst.t('errTexts.errFeed'),
+              'errTexts.errFeed',
             )
-            .required(i18nInst.t('errTexts.required')),
+            .required('errTexts.required'),
         });
         return schema.validate({ feedUrl: inputvalue });
       };
@@ -72,11 +73,9 @@ export default () => {
         const urls = links.map((link) => addProxy(link))
           .map((url) => axios.get(url));
 
-        return Promise.all(urls)
-          .then((answer) => Promise.resolve(answer))
+        Promise.all(urls)
           .then((news) => {
-            const updatedNews = [];
-            news.forEach((issue) => {
+            const updatedNews = news.map((issue) => {
               const { posts, titlefeed } = parse(issue);
               const idOfFeed = getFeedId(watchedState.data.feeds, titlefeed);
 
@@ -87,9 +86,11 @@ export default () => {
                 };
                 return { ...post, ...postId };
               });
-              updatedNews.push(newPostsWithId);
+              return newPostsWithId;
             });
-            watchedState.data.updatedPosts = updatedNews;
+            const [...rest] = watchedState.data.posts;
+            const updatedPosts = updatePosts(rest, updatedNews);
+            watchedState.data.posts = updatedPosts;
           })
           .catch((error) => {
             console.log(error);
@@ -104,7 +105,7 @@ export default () => {
       elements.form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const inputValue = e.target[0].value;
-        watchedState.request.state = 'processing';
+        watchedState.request.status = 'processing';
 
         validate(watchedState.data.feeds, inputValue)
           .then((request) => {
@@ -128,34 +129,25 @@ export default () => {
                 });
 
                 watchedState.form.status = 'filling';
-                watchedState.data.posts = postsWithId;
-                watchedState.request.state = 'finished';
+                watchedState.data.posts.push(postsWithId);
+                watchedState.request.status = 'finished';
               })
               .catch((err) => {
                 if (err.message === 'Empty RSS') {
                   watchedState.form.status = 'filling';
-                  const failed = {
-                    state: 'failed',
-                    error: i18nInst.t('errTexts.invalid'),
-                  };
-                  watchedState.request.state = failed;
+                  watchedState.request.error = 'errTexts.invalid';
+                  watchedState.request.status = 'failed';
                 } else {
                   watchedState.form.status = 'filling';
-                  const failed = {
-                    state: 'failed',
-                    error: i18nInst.t('errTexts.networkErr'),
-                  };
-                  watchedState.request.state = failed;
+                  watchedState.request.error = 'errTexts.networkErr';
+                  watchedState.request.status = 'failed';
                 }
               });
           })
           .catch((err) => {
-            watchedState.request.state = 'waiting';
-            const invalid = {
-              valid: false,
-              yupError: err.message,
-            };
-            watchedState.form.status = invalid;
+            watchedState.request.status = 'waiting';
+            watchedState.form.error = err.message;
+            watchedState.form.status = 'invalid';
           });
       });
 
@@ -163,7 +155,6 @@ export default () => {
       postsDiv.addEventListener('click', (e) => {
         const target = e.target.closest('a');
         if (target) watchedState.uiState.visitedLinks.push(e.target.dataset.postid);
-        return false;
       });
     })
     .catch((err) => {

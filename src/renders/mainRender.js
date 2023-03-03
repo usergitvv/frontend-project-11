@@ -16,14 +16,17 @@ const addModal = (postsDiv, primary, secondary) => {
 export default (state, elements, i18n) => (path, value) => {
   switch (path) {
     case 'form.status':
-      if (!value.valid) {
-        elements.dangerP.textContent = value.yupError;
+      if (value === 'invalid') {
         elements.input.classList.add('error');
         elements.dangerP.classList.remove('text-success');
         elements.dangerP.classList.add('text-danger');
       }
       break;
-    case 'request.state':
+    case 'form.error':
+      elements.dangerP.textContent = i18n.t(value);
+      break;
+
+    case 'request.status':
       if (value === 'processing') {
         elements.dangerP.textContent = '';
         elements.input.classList.remove('error');
@@ -34,11 +37,10 @@ export default (state, elements, i18n) => (path, value) => {
         elements.input.removeAttribute('disabled');
         elements.btn.removeAttribute('disabled');
       }
-      if (value.state === 'failed') {
+      if (value === 'failed') {
         elements.input.classList.remove('error');
         elements.dangerP.classList.remove('text-success');
         elements.dangerP.classList.add('text-danger');
-        elements.dangerP.textContent = value.error;
         elements.input.removeAttribute('disabled');
         elements.btn.removeAttribute('disabled');
         elements.input.focus({ preventScroll: true });
@@ -66,12 +68,17 @@ export default (state, elements, i18n) => (path, value) => {
         elements.input.focus({ preventScroll: true });
       }
       break;
+    case 'request.error':
+      elements.dangerP.textContent = i18n.t(value);
+      break;
+
     case 'uiState.visitedLinks':
       changeLinkStyle(elements.postsDiv, _.uniq(value));
       break;
-    case 'data.updatedPosts':
+
+    case 'data.posts':
       if (value) {
-        makeUpdatedRendering(state.data.updatedPosts, elements.postsDiv, i18n.t('btnPosts'));
+        setTimeout(makeUpdatedRendering, 0, state.data.posts, elements.postsDiv, i18n.t('btnPosts'));
         addModal(elements.postsDiv, i18n.t('modal.primary'), i18n.t('modal.secondary'));
       }
       break;

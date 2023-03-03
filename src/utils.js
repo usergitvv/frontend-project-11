@@ -21,8 +21,27 @@ const changeLinkStyle = (postsDiv, visited) => {
   });
 };
 
+const addNews = (oldColl, newColl) => {
+  const newNews = newColl.filter((obj, index) => obj.title !== oldColl[index].title);
+  return [...oldColl, ...newNews];
+};
+
+const updatePosts = (oldPosts, newPosts) => {
+  const updatedPosts = [];
+  oldPosts.forEach((old, index) => {
+    const controlId = old[0].feedId;
+    const feedIdNew = newPosts[index][0].feedId;
+    if (controlId === feedIdNew) {
+      const updated = addNews(old, newPosts[index]);
+      updatedPosts.push(updated);
+    }
+  });
+  return updatedPosts;
+};
+
 export {
   addProxy,
   getFeedId,
   changeLinkStyle,
+  updatePosts,
 };

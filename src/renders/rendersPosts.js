@@ -31,7 +31,8 @@ const createElemLi = (feedId, postId, itemlink, title, description, btnText) => 
 };
 
 const createPostItem = (posts, postArr, btnText) => {
-  postArr.forEach((item) => {
+  const lastPosts = _.last(postArr);
+  lastPosts.forEach((item) => {
     const li = createElemLi(item.feedId, item.id, item.link, item.title, item.description, btnText);
     const parentDiv = document.querySelector(posts);
     const listGroup = parentDiv.querySelector('ul');
