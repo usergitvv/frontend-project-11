@@ -50,11 +50,13 @@ export default () => {
         },
         uiState: {
           visitedLinks: [],
+          modal: '',
         },
       };
 
-      const validate = (feeds, inputvalue) => {
-        const validlinks = feeds.map((feed) => feed.link);
+      const timeoutPostsUpdating = 5000;
+
+      const validate = (validlinks, inputvalue) => {
         const schema = yup.object({
           feedUrl: yup.string().url('errTexts.errUrl')
             .notOneOf(
@@ -88,26 +90,28 @@ export default () => {
               });
               return newPostsWithId;
             });
-            const [...rest] = watchedState.data.posts;
-            const updatedPosts = updatePosts(rest, updatedNews);
+            const [...posts] = watchedState.data.posts;
+            const updatedPosts = updatePosts(posts, updatedNews);
             watchedState.data.posts = updatedPosts;
           })
           .catch((error) => {
             console.log(error);
           })
           .finally(() => {
-            setTimeout(() => getNewsUpdate(feeds), 5000);
+            setTimeout(() => getNewsUpdate(feeds), timeoutPostsUpdating);
           });
       };
 
-      setTimeout(() => getNewsUpdate(watchedState.data.feeds), 5000);
+      setTimeout(() => getNewsUpdate(watchedState.data.feeds), timeoutPostsUpdating);
 
       elements.form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const inputValue = e.target[0].value;
+        const formData = new FormData(elements.form);
+        const inputValue = formData.get('url');
         watchedState.request.status = 'processing';
 
-        validate(watchedState.data.feeds, inputValue)
+        const validLinks = watchedState.data.feeds.map((feed) => feed.link);
+        validate(validLinks, inputValue)
           .then((request) => {
             const reqUrl = addProxy(request.feedUrl);
             axios.get(reqUrl)
@@ -133,13 +137,15 @@ export default () => {
                 watchedState.request.status = 'finished';
               })
               .catch((err) => {
-                if (err.message === 'Empty RSS') {
-                  watchedState.form.status = 'filling';
-                  watchedState.request.error = 'errTexts.invalid';
-                  watchedState.request.status = 'failed';
-                } else {
+                if (axios.isAxiosError(err)) {
+                  console.log(err);
                   watchedState.form.status = 'filling';
                   watchedState.request.error = 'errTexts.networkErr';
+                  watchedState.request.status = 'failed';
+                } else {
+                  console.log(err.message);
+                  watchedState.form.status = 'filling';
+                  watchedState.request.error = 'errTexts.invalid';
                   watchedState.request.status = 'failed';
                 }
               });
@@ -155,6 +161,11 @@ export default () => {
       postsDiv.addEventListener('click', (e) => {
         const target = e.target.closest('a');
         if (target) watchedState.uiState.visitedLinks.push(e.target.dataset.postid);
+      });
+
+      postsDiv.addEventListener('click', (e) => {
+        const target = e.target.closest('.btn-sm');
+        if (target) watchedState.uiState.modal = target.id;
       });
     })
     .catch((err) => {

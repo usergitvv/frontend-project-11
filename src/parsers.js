@@ -3,7 +3,7 @@ export default (response) => {
   const doc = parser.parseFromString(response.data.contents, 'text/xml');
   const errorNode = doc.querySelector('parsererror');
   if (errorNode) {
-    throw new Error('Empty RSS');
+    throw new Error(`Error! ${errorNode}`);
   }
 
   const titleFeed = doc.querySelector('channel title');

@@ -4,16 +4,7 @@ import createFeeds from './rendersFeeds.js';
 import { createPosts, makeUpdatedRendering } from './rendersPosts.js';
 import callModal from './modal.js';
 
-const addModal = (postsDiv, primary, secondary) => {
-  const liButtons = postsDiv.querySelectorAll('.btn-sm');
-  return liButtons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      callModal(btn, primary, secondary);
-    });
-  });
-};
-
-export default (state, elements, i18n) => (path, value) => {
+export default (state, elements, i18n) => (path, value, previousValue) => {
   switch (path) {
     case 'form.status':
       if (value === 'invalid') {
@@ -50,19 +41,6 @@ export default (state, elements, i18n) => (path, value) => {
         elements.dangerP.classList.remove('text-danger');
         elements.dangerP.classList.add('text-success');
         elements.dangerP.textContent = i18n.t('valid');
-        createFeeds(
-          '.feeds',
-          state.data.feeds,
-          i18n.t('keyFeeds'),
-        );
-        createPosts(
-          '.posts',
-          state.data.posts,
-          i18n.t('keyPosts'),
-          i18n.t('btnPosts'),
-        );
-
-        addModal(elements.postsDiv, i18n.t('modal.primary'), i18n.t('modal.secondary'));
         elements.input.removeAttribute('disabled');
         elements.btn.removeAttribute('disabled');
         elements.input.focus({ preventScroll: true });
@@ -75,11 +53,29 @@ export default (state, elements, i18n) => (path, value) => {
     case 'uiState.visitedLinks':
       changeLinkStyle(elements.postsDiv, _.uniq(value));
       break;
-
-    case 'data.posts':
+    case 'data.feeds':
       if (value) {
-        setTimeout(makeUpdatedRendering, 0, state.data.posts, elements.postsDiv, i18n.t('btnPosts'));
-        addModal(elements.postsDiv, i18n.t('modal.primary'), i18n.t('modal.secondary'));
+        createFeeds(
+          '.feeds',
+          state.data.feeds,
+          i18n.t('keyFeeds'),
+        );
+      }
+      break;
+    case 'data.posts':
+      if (value.length !== previousValue.length) {
+        createPosts(
+          '.posts',
+          state.data.posts,
+          i18n.t('keyPosts'),
+          i18n.t('btnPosts'),
+        );
+      }
+      makeUpdatedRendering(state.data.posts, elements.postsDiv, i18n.t('btnPosts'));
+      break;
+    case 'uiState.modal':
+      if (value) {
+        callModal(value, i18n.t('modal.primary'), i18n.t('modal.secondary'));
       }
       break;
     default:

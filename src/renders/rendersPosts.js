@@ -20,6 +20,8 @@ const createElemLi = (feedId, postId, itemlink, title, description, btnText) => 
   btn.setAttribute('data-id', '2');
   btn.setAttribute('data-bs-toggle', 'modal');
   btn.setAttribute('data-bs-target', '#modal');
+  const btnId = _.uniqueId('btn_');
+  btn.setAttribute('id', `${btnId}`);
   btn.textContent = btnText;
 
   const descriptionP = document.createElement('p');

@@ -1,4 +1,5 @@
-const callModal = (btn, primaryText, secondaryText) => {
+const callModal = (btnId, primaryText, secondaryText) => {
+  const btn = document.querySelector(`#${btnId}`);
   const link = btn.previousElementSibling;
   const href = link.getAttribute('href');
   link.classList.remove('fw-bold');

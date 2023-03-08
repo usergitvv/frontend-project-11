@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 const addProxy = (url) => {
   const urlWithProxy = new URL('/get', 'https://allorigins.hexlet.app');
   urlWithProxy.searchParams.set('url', url);
@@ -22,8 +24,12 @@ const changeLinkStyle = (postsDiv, visited) => {
 };
 
 const addNews = (oldColl, newColl) => {
-  const newNews = newColl.filter((obj, index) => obj.title !== oldColl[index].title);
-  return [...oldColl, ...newNews];
+  const newNews = newColl.filter((obj, index) => {
+    if (oldColl[index] === undefined) return false;
+    return obj.title !== oldColl[index].title;
+  });
+  const updated = [...oldColl, ...newNews];
+  return _.uniqBy(updated, 'title');
 };
 
 const updatePosts = (oldPosts, newPosts) => {
