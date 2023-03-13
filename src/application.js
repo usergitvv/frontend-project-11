@@ -106,8 +106,7 @@ export default () => {
 
       elements.form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const formData = new FormData(elements.form);
-        const inputValue = formData.get('url');
+        const inputValue = e.target[0].value;
         watchedState.request.status = 'processing';
 
         const validLinks = watchedState.data.feeds.map((feed) => feed.link);
@@ -159,13 +158,10 @@ export default () => {
 
       const postsDiv = document.querySelector('.posts');
       postsDiv.addEventListener('click', (e) => {
-        const target = e.target.closest('a');
-        if (target) watchedState.uiState.visitedLinks.push(e.target.dataset.postid);
-      });
-
-      postsDiv.addEventListener('click', (e) => {
-        const target = e.target.closest('.btn-sm');
-        if (target) watchedState.uiState.modal = target.id;
+        const targetLink = e.target.closest('a');
+        if (targetLink) watchedState.uiState.visitedLinks.push(e.target.dataset.postid);
+        const targetModal = e.target.closest('.btn-sm');
+        if (targetModal) watchedState.uiState.modal = targetModal.id;
       });
     })
     .catch((err) => {
